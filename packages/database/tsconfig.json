@@ -1,8 +1,10 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "./dist",
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

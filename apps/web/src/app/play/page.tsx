@@ -2,7 +2,7 @@
 import React, {useEffect, useState} from 'react'
 import {useSocket} from "@/hooks/use-socket"
 import { Chess } from 'chess.js'
-import {GAME_OVER, INIT_GAME, MOVES} from "backend/dist/messages";
+import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
 import {Button} from "@/components/ui/button";
 import ChessBoard from "@/app/play/chessBoard";
 
@@ -16,6 +16,7 @@ function Play() {
             return;
         }
         console.log(board)
+        // eslint-disable-next-line react-hooks/immutability
         socket.onmessage = (event) => {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data);
