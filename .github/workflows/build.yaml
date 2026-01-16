@@ -31,7 +31,7 @@ jobs:
         run: pnpm install
 
       - name: Generate Prisma Client
-        run: pnpm run db:generate
+        run: cd packages/database && pnpm run db:generate && cd -
 
       - name: Build
         run: pnpm build
