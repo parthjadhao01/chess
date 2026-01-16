@@ -16,10 +16,9 @@ export default defineConfig({
     /^\.prisma\/.*/,
     '@prisma/adapter-pg',
     'pg',
-    'express'
+    'express',
+      '@repo/db'
   ],
-  // Bundle our database package but it will still reference external Prisma
-  noExternal: ['@repo/db'],
   esbuildOptions(options) {
     options.platform = 'node';
   },
