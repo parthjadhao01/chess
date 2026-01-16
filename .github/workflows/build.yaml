@@ -1,28 +1,41 @@
+name: CI
+
 on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     name: Build the project
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name : Use node.js
-        uses: actions/setup-node@v3
-        with :
-          node-version: '20'
 
-      - name: Install pnpm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          run_install: false
 
-      - name : Install Dependencies
-        run: pnpm install
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name : Generate Prisma Client
+      - name: Generate Prisma Client
         run: pnpm run db:generate
 
-      - name : Run build
+      - name: Build
         run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
