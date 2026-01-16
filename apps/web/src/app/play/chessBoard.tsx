@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import {Color, PieceSymbol, Square} from "chess.js";
-import {MOVES} from "backend/dist/messages";
+import {Color, PieceSymbol, Square ,Chess} from "chess.js";
+import {MOVES} from "./messages";
 
 function ChessBoard({board,socket,chess,setBoard} : {
     board : ({
@@ -9,8 +9,16 @@ function ChessBoard({board,socket,chess,setBoard} : {
         color : Color
     } | null )[][],
     socket : WebSocket,
-    chess : any,
-    setBoard : any
+    chess : Chess,
+    setBoard: React.Dispatch<
+        React.SetStateAction<
+            ({
+                square: Square
+                type: PieceSymbol
+                color: Color
+            } | null)[][]
+        >
+    >
 }){
     const [from,setFrom] = useState<Square | null>(null);
     const [to,setTo] = useState<Square | null>(null);
@@ -40,6 +48,7 @@ function ChessBoard({board,socket,chess,setBoard} : {
                                     from,
                                     to : squareRepresentation
                                 })
+
                                 setBoard(chess.board())
                             }
                         }} key={j} className={`w-20 h-20 ${(i+j)%2 === 0 ? 'bg-[#69923E]' : 'bg-white'} `}>
