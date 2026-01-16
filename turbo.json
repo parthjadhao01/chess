@@ -20,7 +20,7 @@
       "persistent": true
     },
     "db:generate": {
-      "cache": false
+      "outputs": ["generated/prisma/**"]
     },
     "db:migrate": {
       "cache": false,

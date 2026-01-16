@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build:
     name: Build the project
@@ -31,7 +30,7 @@ jobs:
         run: pnpm install
 
       - name: Generate Prisma Client
-        run: pnpm db:generate
+        run: pnpm --filter @repo/db run db:generate
 
       - name: Build
         run: pnpm build
