@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+RUN npm install -g pnpm
+
+COPY ../package.json pnpm-lock.yaml turbo.json pnpm-workspace.yaml ./
+COPY ../apps ./apps
+COPY ../packages ./packages
+
+RUN pnpm install
+RUN pnpm --filter @repo/db run db:generate
+RUN pnpm run build
+
+CMD ["pnpm", "run", "start-chess-app"]
