@@ -1,11 +1,8 @@
 import Image from "next/image";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
-import {prisma} from "@repo/db";
-// import {PrismaClient} from "@repo/db/client";
 
 export default async function Home() {
-  const user = await prisma.user.findFirst()
     return (
     <div className="flex min-h-screen items-center justify-center bg-[#312e2b]">
         <div className="w-screen flex">
@@ -32,7 +29,6 @@ export default async function Home() {
                     >
                         Play
                     </Button>
-                    <p>{user?.username ?? "no user added yet"}</p>
                 </div>
             </div>
         </div>

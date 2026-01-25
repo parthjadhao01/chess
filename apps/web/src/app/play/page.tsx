@@ -5,23 +5,13 @@ import { Chess } from 'chess.js'
 import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
 import {Button} from "@/components/ui/button";
 import ChessBoard from "@/app/play/chessBoard";
-import {prisma} from "@repo/db";
 
 function Play() {
-    async function testingDb (){
-        await prisma.user.create({
-            data : {
-                username : "parthjadhao",
-                password : "hello"
-            }
-        })
-    }
     const socket  = useSocket();
     const [chess,setChess] = useState(new Chess());
     const [board,setBoard] = useState(chess.board());
 
     useEffect(()=>{
-        // testingDb();
         if(!socket){
             return;
         }
