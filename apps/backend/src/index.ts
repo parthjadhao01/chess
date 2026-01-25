@@ -18,41 +18,18 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.get("/hello",(req,res)=>{
-    res.status(200).send({
-        message : "hello world"
+app.post("/api/signup",async (req,res)=>{
+    const {username,password} = req.body;
+    const user = await prisma.user.findUnique({
+        data : {
+            username : username,
+            password : password
+        }
     })
 })
 
-app.post("/api/register",async  (req,res)=>{
-    try {
-        const user = await prisma.user.create({
-            data : {
-                email : "parth314@gmail.com"
-            }
-        })
-        console.log(user)
-        res.status(200).send({
-            message : "User registered successfully",
-            user : user
-        })
-    }catch(err: any){
-        console.error("Register error:", err);
-        res.status(500).send({
-            message : "Something went wrong",
-            error: err?.message || "Unknown error"
-        })
-    }
-})
-
 app.post("/api/login",(req,res)=>{
-    try{
 
-    }catch (err){
-        res.status(500).send({
-            message : "Something went wrong"
-        })
-    }
 })
 
 

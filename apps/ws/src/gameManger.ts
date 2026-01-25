@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
-import {INIT_GAME, MOVES} from "./messages.js";
-import {Game} from "./game.js";
+import {INIT_GAME, MOVES} from "./messages";
+import {Game} from "./game";
+import {db} from "./db"
 
 export class GameManger {
     private games: Game[] = [];
@@ -22,7 +23,7 @@ export class GameManger {
     }
 
     private addUserHandler(socket : WebSocket){
-        socket.on("message",(data)=>{
+        socket.on("message",async (data)=>{
             const message = JSON.parse(data.toString());
             if (message.type === INIT_GAME){
                 if (this.pendingUser){
@@ -36,6 +37,12 @@ export class GameManger {
                     }
                     const game = new Game(this.pendingUser,socket);
                     this.games.push(game)
+                    await db.user.create({
+                        data : {
+                            username : "lamboldfa",
+                            password : "lkwjkerl"
+                        }
+                    })
                     this.pendingUser = null
                 }else{
                     this.pendingUser = socket

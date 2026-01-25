@@ -7,7 +7,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "start-chess-app" : "cd apps/web && pnpm run dev"
+    "db:generate": "cd packages/database && npx prisma generate && cd ../..",
+    "start-chess-app" : "cd ./apps/web && pnpm run start"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
