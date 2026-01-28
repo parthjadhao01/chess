@@ -7,7 +7,6 @@ import * as dotenv from "dotenv"
 
 const app = express();
 dotenv.configDotenv()
-app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
     credentials : true,
@@ -32,10 +31,9 @@ app.post("/api/signup", async (req, res) => {
             data: { username, password }
         })
 
-        const token = jwt.sign({ id: user.id }, JWT_SECRET)
-        res.cookie("token", token)
-
-        res.json({ message: "Signup successful" })
+        res.json({
+            message: "Signup successful",
+        })
     } catch (err) {
         console.error(err)
         res.status(500).json({ error: err })
@@ -55,22 +53,14 @@ app.post("/api/login", async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" })
         }
 
-        const token = jwt.sign({ id: user.id }, JWT_SECRET)
-        res.cookie("token", token)
-
-        res.json({ message: "Login successful" })
-    } catch (err) {
-        res.status(500).json({ error: err })
-    }
-})
-
-app.post("/api/logout",(req,res)=>{
-    try{
-        res.clearCookie("token");
-        res.status(200).json({
-            message : "Logout successfully"
+        res.json({
+            message: "Login successful",
+            data : {
+                id : user.id,
+                username : user.username,
+            }
         })
-    }catch (err){
+    } catch (err) {
         res.status(500).json({ error: err })
     }
 })

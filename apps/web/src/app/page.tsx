@@ -1,8 +1,16 @@
 import Image from "next/image";
 import {Button} from "@/components/ui/button";
 import {Separator} from "@/components/ui/separator";
+import { getServerSession } from "next-auth"
+import {NEXT_AUTH_CONFIG} from "@/lib/auth";
+
+async function getUser() {
+    const session = await getServerSession(NEXT_AUTH_CONFIG);
+    return session;
+}
 
 export default async function Home() {
+    const session = await getUser();
     return (
     <div className="flex min-h-screen items-center justify-center bg-[#312e2b]">
         <div className="w-screen flex">
@@ -22,6 +30,9 @@ export default async function Home() {
                     <Image src={"/chessboard.gif"} alt={"chess board"} width={700} height={700} />
                 </div>
                 <div className="text-center">
+                    <p>
+                        {JSON.stringify(session)}
+                    </p>
                     <h1 className="text-5xl font-extrabold text-white">Play Chess Online on #1 site</h1>
                     <p className="text-lg/7 mt-5 font-semibold line text-white">Join and play chess with world best community</p>
                     <Button
