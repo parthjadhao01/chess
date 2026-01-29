@@ -125,6 +125,26 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.GameScalarFieldEnum = {
+  id: 'id',
+  player1Id: 'player1Id',
+  player2Id: 'player2Id',
+  status: 'status',
+  boardFen: 'boardFen',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MoveScalarFieldEnum = {
+  id: 'id',
+  gameId: 'gameId',
+  playerId: 'playerId',
+  from: 'from',
+  to: 'to',
+  moveNo: 'moveNo',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -134,10 +154,16 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
-
+exports.GameStatus = exports.$Enums.GameStatus = {
+  ONGOING: 'ONGOING',
+  FINISHED: 'FINISHED',
+  ABANDONED: 'ABANDONED'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Game: 'Game',
+  Move: 'Move'
 };
 
 /**

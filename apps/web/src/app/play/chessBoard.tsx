@@ -1,6 +1,17 @@
 import React, {useState} from 'react'
 import {Color, PieceSymbol, Square ,Chess} from "chess.js";
 import {MOVES} from "./messages";
+import { User} from 'lucide-react';
+
+function PlayerCard(){
+    return <div className="flex flex- justify-between my-2">
+        <div className="flex flex-col justify-center ">
+            <User></User>
+            <div className="text-xl">username</div>
+        </div>
+
+    </div>
+}
 
 function ChessBoard({board,socket,chess,setBoard} : {
     board : ({
@@ -25,6 +36,7 @@ function ChessBoard({board,socket,chess,setBoard} : {
 
     return (
         <div>
+            <PlayerCard></PlayerCard>
             {board.map((row, i) => {
                 return <div key={i} className="flex justify-center items-center">
                     {row.map((square, j) => {
@@ -51,12 +63,13 @@ function ChessBoard({board,socket,chess,setBoard} : {
 
                                 setBoard(chess.board())
                             }
-                        }} key={j} className={`w-20 h-20 ${(i+j)%2 === 0 ? 'bg-[#69923E]' : 'bg-white'} `}>
+                        }} key={j} className={`w-17 h-17 ${(i+j)%2 === 0 ? 'bg-[#69923E]' : 'bg-white'} `}>
                             {square ? square.type : ""}
                         </div>
                     })}
                 </div>
             })}
+            <PlayerCard></PlayerCard>
         </div>
     )
 }
