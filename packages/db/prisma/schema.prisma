@@ -14,10 +14,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum GameStatus {
+  ONGOING
+  FINISHED
+  ABANDONED
+}
+
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  gamesAsPlayer1 Game[] @relation("Player1Games")
+  gamesAsPlayer2 Game[] @relation("Player2Games")
+  moves          Move[]
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  // Players
+  player1   User   @relation("Player1Games", fields: [player1Id], references: [id])
+  player1Id String
+
+  player2   User   @relation("Player2Games", fields: [player2Id], references: [id])
+  player2Id String
+
+  // Game state
+  status   GameStatus @default(ONGOING)
+  boardFen String     @default("startpos") // chess board snapshot
+
+  // Relations
+  moves Move[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Move {
+  id String @id @default(uuid())
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+
+  player   User   @relation(fields: [playerId], references: [id])
+  playerId String
+
+  from   String
+  to     String
+  moveNo Int
+
+  createdAt DateTime @default(now())
 }
