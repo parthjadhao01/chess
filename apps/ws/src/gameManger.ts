@@ -38,17 +38,6 @@ export class GameManger {
                         }))
                         return;
                     }
-                    // 3. write a db query to create a game with following details
-                    // data : {
-                    //   player1 : {
-                    //     id : player1 user id
-                    //     socket : player1 socket
-                    //   },
-                    //   player2 : {
-                    //      id : player 2 user id
-                    //      socket : player2 socket
-                    // }
-                    //  pass the gameId is game class to send it to user through ws
                     const GAME = await db.game.create({
                         data : {
                             player1Id : this.pendingUser.userId,
@@ -69,7 +58,7 @@ export class GameManger {
             if (message.type === MOVES){
                 const game = this.games.find(game => game.player1 === socket || game.player2 === socket);
                 if (game){
-                    game.makeMove(socket,message.payload.move);
+                    game.makeMove(socket,message.payload.move,userId);
                 }
             }
         })

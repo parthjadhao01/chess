@@ -1,77 +1,233 @@
 "use client"
 import React, {useEffect, useState} from 'react'
-import {useSocket} from "@/hooks/use-socket"
-import { Chess } from 'chess.js'
-import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
+import {INIT_GAME} from "./messages";
 import {Button} from "@/components/ui/button";
-import ChessBoard from "@/app/play/chessBoard";
+import {useChessStore} from "@/app/store/chess-game-state";
 import {useRouter} from "next/navigation";
+import {useSocket} from "@/app/socket-provider";
+import Link from "next/link";
+import {LoadingSpinner} from "@/app/play/loading-spinner";
+
 
 function Play() {
     const router = useRouter();
     const socket  = useSocket();
-    const [chess,setChess] = useState(new Chess());
-    const [board,setBoard] = useState(chess.board());
-    // 1. define state variable waiting for the user
-    const [loading,setLoading] = useState(false);
+    const [isMatching,setIsMatching] = useState(false);
+    const [showDisconnectCard, setShowDisconnectCard] = useState(false);
+    const [disconnectTimer, setDisconnectTimer] = useState(300); // 5 minutes in seconds
+    const startNewGame = useChessStore((state)=>state.startNewGame)
 
-    useEffect(()=>{
-        if(!socket){
-            return;
-        }
-        console.log(board)
-        // eslint-disable-next-line react-hooks/immutability
-        socket.onmessage = (event) => {
-            if (typeof event.data === "string") {
-                const message = JSON.parse(event.data);
-                console.log(message);
-                switch (message.type){
-                    case INIT_GAME:
-                        setBoard(chess.board());
-                        console.log("game is initialed")
-                        // 4. from initialized game take the gameId and redirect to /play/[gameId]
-                        router.push(`/play/${message.payload.gameId}`)
-                        // 5. remove all other message.types because i think there is no need of MOVES and GAME_OVER in /play
-                        break;
-                    case MOVES :
-                        const move = message.payload;
-                        chess.move(move);
-                        setBoard(chess.board());
-                        console.log("move is made");
-                        break;
-                    case GAME_OVER :
-                        console.log("game is over");
-                        break;
+    useEffect(() => {
+        if (!showDisconnectCard) return;
+
+        const interval = setInterval(() => {
+            setDisconnectTimer((prev) => {
+                if (prev <= 1) {
+                    setShowDisconnectCard(false);
+                    setDisconnectTimer(300);
+                    return 300;
                 }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [showDisconnectCard]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    useEffect(() => {
+        if (!socket) return
+
+        const handler = (event: MessageEvent) => {
+            if (typeof event.data !== "string") return
+
+            const message = JSON.parse(event.data)
+
+            if (message.type === INIT_GAME) {
+                startNewGame(message.payload.gameId)
+                setIsMatching(false)
+                router.push(`/play/${message.payload.gameId}`)
             }
         }
-    },[socket])
+
+        socket.addEventListener("message", handler)
+
+        return () => {
+            socket.removeEventListener("message", handler)
+        }
+    }, [socket, startNewGame, router])
 
     if (!socket){
-        return <div>Connecting....</div>
+        return <div className="min-h-screen bg-background flex items-center justify-center">
+            <LoadingSpinner message="Connecting to game server…" size="md"/>
+        </div>
+    }
+
+    const startGame = () => {
+        socket?.send(JSON.stringify({
+            type : INIT_GAME
+        }))
+        setIsMatching(true);
     }
 
     return (
-        <div className="grid grid-cols-2 min-h-screen bg-background">
-            <div className="border flex justify-center items-center w-min-full">
-                <ChessBoard chess={chess} setBoard={setBoard} board={board} socket={socket}/>
-            </div>
-            <div className="flex justify-center  items-center border w-min-full bg-card/50">
-                <div className="h-[70%] w-[80%] border flex justify-center  items-center">
-                    <Button
-                        className="border"
-                        onClick={()=>{
-                            console.log("sended the init game request")
-                            socket?.send(JSON.stringify({
-                                type : INIT_GAME
-                            }))
-                            // 2. set waiting user true and disable button
-                            setLoading(true);
-                    }}>Start Game</Button>
-                </div>
-            </div>
+        <div className="min-h-screen bg-background">
+            {/* Navigation back */}
+            <nav className="border-b border-border p-4 sm:p-6">
+                <Link
+                    href="/"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to Home
+                </Link>
+            </nav>
 
+            {/* Main content */}
+            <main className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4 py-12">
+                {isMatching ? (
+                    // Matching state
+                    <div className="w-full max-w-md space-y-8">
+                        <div className="text-center space-y-4">
+                            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                                Finding Your Match
+                            </h1>
+                            <p className="text-muted-foreground text-sm sm:text-base">
+                                We are searching for the perfect opponent for you
+                            </p>
 
+                            <LoadingSpinner
+                                message="Matching..."
+                                size="sm"
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    // Initial state
+                    <div className="w-full max-w-4xl space-y-12">
+                        {/* Header */}
+                        <div className="text-center space-y-4">
+                            <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
+                                Ready to Play?
+                            </h1>
+                            <p className="text-lg text-muted-foreground">
+                                Challenge opponents from around the world • 10 min Classic
+                            </p>
+                        </div>
+
+                        {/* Start button */}
+                        <div className="flex justify-center">
+                            <Button
+                                onClick={startGame}
+                                className="px-12 py-6 text-lg font-semibold hover:bg-foreground/90 transition-all"
+                            >
+                                Start Game
+                            </Button>
+                        </div>
+
+                        {/* Two Column Layout - History and Disconnect Card */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Left: Game History Table - Squeezed */}
+                            <div className="lg:col-span-2 space-y-4">
+                                <h2 className="text-2xl font-bold text-foreground">Game History</h2>
+                                <div className="border border-border rounded-lg overflow-hidden">
+                                    <table className="w-full">
+                                        <thead>
+                                        <tr className="border-b border-border bg-card/50">
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Opponent</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Winner</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">Date</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr className="border-b border-border hover:bg-card/30 transition-colors">
+                                            <td className="px-4 py-3 text-sm text-foreground">Alex_Chess</td>
+                                            <td className="px-4 py-3 text-sm text-foreground font-medium">You</td>
+                                            <td className="px-4 py-3 text-sm text-muted-foreground">Today, 2:45 PM</td>
+                                        </tr>
+                                        <tr className="border-b border-border hover:bg-card/30 transition-colors">
+                                            <td className="px-4 py-3 text-sm text-foreground">ProPlayer_22</td>
+                                            <td className="px-4 py-3 text-sm text-foreground font-medium">ProPlayer_22</td>
+                                            <td className="px-4 py-3 text-sm text-muted-foreground">Yesterday, 5:12 PM</td>
+                                        </tr>
+                                        <tr className="border-b border-border hover:bg-card/30 transition-colors">
+                                            <td className="px-4 py-3 text-sm text-foreground">King_Master</td>
+                                            <td className="px-4 py-3 text-sm text-foreground font-medium">You</td>
+                                            <td className="px-4 py-3 text-sm text-muted-foreground">Jan 28, 11:20 AM</td>
+                                        </tr>
+                                        <tr className="border-b border-border hover:bg-card/30 transition-colors">
+                                            <td className="px-4 py-3 text-sm text-foreground">Strategy_Queen</td>
+                                            <td className="px-4 py-3 text-sm text-foreground font-medium">Draw</td>
+                                            <td className="px-4 py-3 text-sm text-muted-foreground">Jan 27, 9:15 AM</td>
+                                        </tr>
+                                        <tr className="hover:bg-card/30 transition-colors">
+                                            <td className="px-4 py-3 text-sm text-foreground">Knight_Move</td>
+                                            <td className="px-4 py-3 text-sm text-foreground font-medium">You</td>
+                                            <td className="px-4 py-3 text-sm text-muted-foreground">Jan 25, 8:30 PM</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Right: Disconnect Card */}
+                            {showDisconnectCard && (
+                                <div className="lg:col-span-1">
+                                    <div className="border border-border rounded-lg bg-card/50 p-6 space-y-4">
+                                        <div className="space-y-2">
+                                            <p className="text-sm text-muted-foreground">Opponent</p>
+                                            <p className="text-lg font-semibold text-foreground">ProMaster_99</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <p className="text-base font-medium text-foreground">Match Disconnected</p>
+                                            <p className="text-sm text-muted-foreground">Want to continue the game?</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <p className="text-xs text-muted-foreground text-center">Expires in {formatTime(disconnectTimer)}</p>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Button
+                                                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                                                onClick={() => setShowDisconnectCard(false)}
+                                            >
+                                                Continue Game
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full bg-transparent"
+                                                onClick={() => setShowDisconnectCard(false)}
+                                            >
+                                                Decline
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Button to show disconnect card for testing */}
+                        {!showDisconnectCard && (
+                            <Button
+                                onClick={() => setShowDisconnectCard(true)}
+                                variant="outline"
+                                className="mt-8"
+                            >
+                                Test Disconnect Card
+                            </Button>
+                        )}
+                    </div>
+                )}
+            </main>
         </div>
     )
 }

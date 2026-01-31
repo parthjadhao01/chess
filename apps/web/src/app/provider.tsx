@@ -12,7 +12,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
                 enableSystem={false}
                 disableTransitionOnChange
             >
-                {children}
+                    {children}
             </NextThemesProvider>
         </SessionProvider>
     );

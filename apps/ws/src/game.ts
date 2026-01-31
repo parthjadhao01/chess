@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
 import {Chess} from "chess.js";
 import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
+import {db} from "./db";
 
 export class Game {
     public player1 : WebSocket;
@@ -35,10 +36,10 @@ export class Game {
         }))
     }
 
-    public makeMove(socket : WebSocket, move : {
+    public async makeMove(socket : WebSocket, move : {
         from : string,
         to : string
-    }){
+    },userId : string){
         // TODO : validate the type move using zod
         if (this.moveCount % 2 === 0 && socket !== this.player1 ){
             return;
@@ -74,11 +75,29 @@ export class Game {
                 type : MOVES,
                 payload : move
             }))
+            await db.move.create({
+                data : {
+                    gameId : this.GAME_ID,
+                    playerId : userId,
+                    from : move.from,
+                    to : move.to,
+                    moveNo : this.moveCount
+                }
+            })
         } else{
             this.player1.send(JSON.stringify({
                 type : MOVES,
                 payload : move
             }))
+            await db.move.create({
+                data : {
+                    gameId : this.GAME_ID,
+                    playerId : userId,
+                    from : move.from,
+                    to : move.to,
+                    moveNo : this.moveCount
+                }
+            })
         }
         this.moveCount++;
 
