@@ -55,7 +55,7 @@ function ChessBoard() {
     return (
         <div>
             {board.map((row, i) => {
-                return <div key={i} className="flex justify-center items-center">
+                return <div key={i} className="flex border-foreground overflow-hidden">
                     {row.map((square, j) => {
                         const squareRepresentation = String.fromCharCode(97+(j % 8))+ "" +(8-i) as Square
                         return <div onClick={()=>{
@@ -79,7 +79,7 @@ function ChessBoard() {
                                 setFrom(null)
                                 // setBoard(chess.board())
                             }
-                        }} key={j} className={`w-17 h-17 ${(i+j)%2 === 0 ? 'bg-[#69923E]' : 'bg-white'} `}>
+                        }} key={j} className={`w-17 h-17 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl cursor-pointer hover:opacity-80 transition-opacity ${(i+j)%2 === 0 ? 'bg-foreground/10' : 'bg-foreground/30'} `}>
                             {square ? square.type : ""}
                         </div>
                     })}

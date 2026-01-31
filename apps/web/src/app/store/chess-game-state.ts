@@ -10,6 +10,7 @@ type ChessState = {
         color : Color
     } | null )[][] | null,
     gameId : string | null,
+    moves : Move[],
     startNewGame : (gameId : string) => void,
     applyMove : (move : Move) => void,
     reset : () => void
@@ -19,6 +20,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
     chess : new Chess(),
     gameId : null,
     board : null,
+    moves : [],
 
     startNewGame : (gameId) => {
         set({
@@ -31,9 +33,15 @@ export const useChessStore = create<ChessState>((set,get)=>({
         const chess = get().chess
         chess.move(move)
         const board = get().chess.board()
-        set({chess})
-        set({board})
+        // set({chess})
+        // set({board})
+        set((state)=>({
+            moves : [...state.moves,move],
+            board : board,
+            chess : chess
+        }))
     },
+
     reset : () => {
         set({
             chess : new Chess(),
