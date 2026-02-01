@@ -14,6 +14,7 @@ type ChessState = {
     startNewGame : (gameId : string) => void,
     applyMove : (move : Move) => void,
     reset : () => void
+    reconnect : (fen : string,moves : Move[]) => void
 }
 
 export const useChessStore = create<ChessState>((set,get)=>({
@@ -40,6 +41,17 @@ export const useChessStore = create<ChessState>((set,get)=>({
             board : board,
             chess : chess
         }))
+    },
+
+    reconnect : (fen: string ,moves) => {
+        const chess = get().chess
+        chess.load(fen)
+        const board = chess.board()
+        set({
+            chess : chess,
+            moves : moves,
+            board : board,
+        })
     },
 
     reset : () => {

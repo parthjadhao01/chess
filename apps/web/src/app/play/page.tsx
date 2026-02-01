@@ -11,7 +11,7 @@ import {LoadingSpinner} from "@/app/play/loading-spinner";
 
 function Play() {
     const router = useRouter();
-    const socket  = useSocket();
+    const {socket,status}  = useSocket();
     const [isMatching,setIsMatching] = useState(false);
     const [showDisconnectCard, setShowDisconnectCard] = useState(false);
     const [disconnectTimer, setDisconnectTimer] = useState(300); // 5 minutes in seconds
@@ -41,7 +41,7 @@ function Play() {
     };
 
     useEffect(() => {
-        if (!socket) return
+        if (status !== "connected") return
 
         const handler = (event: MessageEvent) => {
             if (typeof event.data !== "string") return
@@ -60,9 +60,9 @@ function Play() {
         return () => {
             socket.removeEventListener("message", handler)
         }
-    }, [socket, startNewGame, router])
+    }, [socket, startNewGame, router,status])
 
-    if (!socket){
+    if (status !== "connected"){
         return <div className="min-h-screen bg-background flex items-center justify-center">
             <LoadingSpinner message="Connecting to game server…" size="md"/>
         </div>

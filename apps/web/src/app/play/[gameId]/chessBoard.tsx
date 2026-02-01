@@ -1,22 +1,19 @@
 import React, {useEffect, useState} from 'react'
 import {Square } from "chess.js";
-import {GAME_OVER, MOVES} from "./messages";
+import {GAME_OVER, MOVES} from "../messages";
 import {useChessStore} from "@/app/store/chess-game-state";
 import {useSocket} from "@/app/socket-provider";
 
-
-
 function ChessBoard() {
-    const socket = useSocket()
+    const { socket, status } = useSocket()
     const [from,setFrom] = useState<Square | null>(null);
     const [to,setTo] = useState<Square | null>(null);
     const chess = useChessStore((state)=>state.chess);
     const board = useChessStore((state)=> state.board);
     const applyMove = useChessStore((state)=>state.applyMove)
 
-
     useEffect(()=>{
-        if(!socket){
+        if(status !== "connected"){
             return;
         }
         // eslint-disable-next-line react-hooks/immutability
