@@ -67,7 +67,7 @@ export class Game {
         }))
     }
 
-    private applyMove(move: { from: string; to: string }, userId: string) {
+    public applyMove(move: { from: string; to: string }, userId: string) {
         this.board.move(move);
 
         this.moves.push({
