@@ -1,7 +1,7 @@
 import http from "http";
 import { WebSocketServer } from "ws";
 import { parse } from "cookie";
-import { GameManger } from "./gameManger";
+import { GameManager } from "./gameManger";
 import jwt from "jsonwebtoken"
 import { db } from "./db";
 import {getSession} from "next-auth/react";
@@ -19,9 +19,9 @@ declare module "next-auth" {
     }
 }
 
-const server = http.createServer();       // 👈 YOU own the HTTP server
+const server = http.createServer();
 const wss = new WebSocketServer({ noServer: true });
-const gameManager = new GameManger();
+const gameManager = new GameManager();
 
 function getSessionToken(req: any) {
     console.log("fetcing the cookie")

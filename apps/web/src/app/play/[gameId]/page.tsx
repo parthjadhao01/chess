@@ -1,22 +1,42 @@
 "use client"
-import ChessBoard from "@/app/play/chessBoard";
+import ChessBoard from "@/app/play/[gameId]/chessBoard";
 import MovesTable from "@/app/play/[gameId]/movesTable";
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import {useSocket} from "@/app/socket-provider";
+import {useParams} from "next/navigation";
+import {useChessStore} from "@/app/store/chess-game-state";
 
 export default function GamePage() {
+    // 1. fetch the query gameId from route query of the frontend
+    const {gameId} = useParams<{gameId : string}>()
+    const {socket,status} = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const [opponentTime, setOpponentTime] = useState(600); // 10 minutes in seconds
     const [yourTime, setYourTime] = useState(600);
+    const {reconnect} = useChessStore();
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setYourTime((prev) => (prev > 0 ? prev - 1 : 0));
-        }, 1000);
+        if (status !== "connected") return
 
-        return () => clearInterval(interval);
-    }, []);
+        socket.send(JSON.stringify({
+            type: "reconnect",
+            payload: { gameId }
+        }))
+
+        const handler = (event: MessageEvent) => {
+            if (typeof event.data === "string") {
+                const message = JSON.parse(event.data)
+                if (message.type === "reconnect") {
+                    reconnect(message.payload.fen, message.payload.moves)
+                }
+            }
+        }
+
+        socket.addEventListener("message", handler)
+
+        return () => socket.removeEventListener("message", handler)
+    }, [status, gameId, socket])
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
