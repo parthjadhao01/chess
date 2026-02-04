@@ -57,6 +57,75 @@ This chess platform focuses on **real-time multiplayer gameplay**, resilience, a
 
 ---
 
+## Running with Docker
+
+This project is fully containerized and can be run locally using Docker without installing Node.js, PostgreSQL, or Prisma on your machine.
+
+### Prerequisites
+- Docker
+- Docker Compose
+
+---
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/parthjadhao01/chess.git
+cd chess
+```
+
+### 2. Build all services
+This builds the Web app, Backend API, WebSocket server, and Prisma layer.
+```bash
+docker compose build
+```
+
+### 3. Run database migrations
+This sets up PostgreSQL schema using Prisma.
+```bash
+docker compose run migrate
+```
+
+### 4. Start the full stack
+```bash
+docker compose up
+```
+Or in detached mode:
+```bash
+docker compose up -d
+```
+### 5. Access the services
+
+| Service          | URL                            |
+|------------------|--------------------------------|
+| Web App          | http://localhost:3000          |
+| Backend API      | http://localhost:3001          |
+| WebSocket Server | ws://localhost:4000            |
+| PostgreSQL       | localhost:5432                 |
+
+### 6. Stop everything
+```bash
+docker compose down
+```
+To also reset the database:
+```bash
+docker compose down -v
+```
+### Docker Architecture
+
+The application is deployed as a set of isolated, communicating containers.  
+Each service is independently scalable and connected through Docker’s internal network.
+
+#### Services
+
+| Container | Responsibility |
+|----------|----------------|
+| **web** | Next.js frontend with NextAuth for authentication |
+| **backend** | REST API for user, game, and persistence logic |
+| **ws** | WebSocket server handling real-time multiplayer gameplay |
+| **postgres** | PostgreSQL database storing users, games, and moves |
+| **migrate** | Prisma service responsible for applying database migrations |
+
+---
 ## Current Work / Roadmap
 
 The project is actively being developed. Focus areas include:

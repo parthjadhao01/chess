@@ -1,30 +1,59 @@
-name: Build and deploy to docker hub
+name: Build & Push Docker Images
 
-on :
+on:
   push:
     branches:
       - main
 
 jobs:
-  build-and-push:
+  docker:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Login to docker hub
-        uses: docker/login-action@v1
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          username: ${{secrets.DOCKER_USERNAME}}
-          password: ${{secrets.DOCKER_PASSWORD}}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push docker image
-        uses: docker/build-push-action@v2
+      # -------- FRONTEND --------
+      - name: Build & Push chess-web
+        uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./docker/Dockerfile.web
+          file: apps/web/Dockerfile
           push: true
-          tags: parthjadhao/chess:latest
+          tags: parthjadhao/chess-web:latest
 
-      - name: Verify pushed image
-        run: docker pull parthjadhao/chess:latest
+      # -------- BACKEND --------
+      - name: Build & Push chess-backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/backend/Dockerfile
+          push: true
+          tags: parthjadhao/chess-backend:latest
+
+      # -------- WEBSOCKET --------
+      - name: Build & Push chess-ws
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/ws/Dockerfile
+          push: true
+          tags: parthjadhao/chess-ws:latest
+
+      # -------- PRISMA / MIGRATE --------
+      - name: Build & Push chess-migrate
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/db/Dockerfile
+          push: true
+          tags: parthjadhao/chess-migrate:latest
