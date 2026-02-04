@@ -46,7 +46,7 @@ export const NEXT_AUTH_CONFIG = {
                 const password = credentials.password;
 
                 const response = await axios.post(
-                    `${BACKEND_URL}/api/login`,
+                    `${process.env.BACKEND_URL}/api/login`,
                     {
                         username,
                         password,

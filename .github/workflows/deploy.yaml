@@ -18,11 +18,23 @@ jobs:
           username: ${{secrets.DOCKER_USERNAME}}
           password: ${{secrets.DOCKER_PASSWORD}}
 
-      - name: Build and push docker image
+        # for chess frontend
+      - name: Build and push docker image chess-frontend
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./docker/Dockerfile.web
+          file: ./apps/web/DockerFile
+          push: true
+          tags: parthjadhao/chess:latest
+
+      - name: Verify pushed image
+        run: docker pull parthjadhao/chess:latest
+
+      - name: Build and push docker image chess-backend
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./apps/web/DockerFile
           push: true
           tags: parthjadhao/chess:latest
 
