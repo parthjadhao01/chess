@@ -38,10 +38,12 @@ export const NEXT_AUTH_CONFIG = {
                 password: { label: 'password', type: 'password', placeholder: '' },
             },
             async authorize(credentials) {
+                console.log("authorization")
+                console.log(credentials);
                 if (!credentials?.username || !credentials?.password) {
                     return null;
                 }
-
+                console.log("validated credentials")
                 const username = credentials.username;
                 const password = credentials.password;
 
@@ -52,7 +54,7 @@ export const NEXT_AUTH_CONFIG = {
                         password,
                     },
                 )
-
+                console.log("response from db")
                 if (response.status !== 200) {
                     return null
                 }

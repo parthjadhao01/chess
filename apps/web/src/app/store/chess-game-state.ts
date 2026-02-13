@@ -11,10 +11,11 @@ type ChessState = {
     } | null )[][] | null,
     gameId : string | null,
     moves : Move[],
-    startNewGame : (gameId : string) => void,
+    startNewGame : (gameId : string, color : string) => void,
     applyMove : (move : Move) => void,
     reset : () => void
-    reconnect : (fen : string,moves : Move[]) => void
+    reconnect : (fen : string,moves : Move[],color : string) => void
+    color : string,
 }
 
 export const useChessStore = create<ChessState>((set,get)=>({
@@ -22,12 +23,14 @@ export const useChessStore = create<ChessState>((set,get)=>({
     gameId : null,
     board : null,
     moves : [],
+    color : "white",
 
-    startNewGame : (gameId) => {
+    startNewGame : (gameId : string,color : string) => {
         set({
             chess : new Chess(),
             gameId : gameId,
             board : get().chess.board(),
+            color : color
         })
     },
     applyMove : (move) => {
@@ -43,7 +46,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
         }))
     },
 
-    reconnect : (fen: string ,moves) => {
+    reconnect : (fen: string ,moves, color) => {
         const chess = get().chess
         chess.load(fen)
         const board = chess.board()
@@ -51,6 +54,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
             chess : chess,
             moves : moves,
             board : board,
+            color : color
         })
     },
 
@@ -59,5 +63,6 @@ export const useChessStore = create<ChessState>((set,get)=>({
             chess : new Chess(),
             gameId : null,
         })
-    }
+    },
+
 }))

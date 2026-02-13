@@ -43,12 +43,13 @@ app.post("/api/signup", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
     try {
+        console.log("inside login api")
         const { username, password } = req.body
-
+        console.log("fetched the credentials")
         const user = await db.user.findUnique({
             where: { username }
         })
-
+        console.log(user)
         if (!user || user.password !== password) {
             return res.status(400).json({ message: "Invalid credentials" })
         }

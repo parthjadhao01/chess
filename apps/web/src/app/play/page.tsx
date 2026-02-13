@@ -49,7 +49,8 @@ function Play() {
             const message = JSON.parse(event.data)
 
             if (message.type === INIT_GAME) {
-                startNewGame(message.payload.gameId)
+                // pass the player color in this
+                startNewGame(message.payload.gameId,message.payload.color)
                 setIsMatching(false)
                 router.push(`/play/${message.payload.gameId}`)
             }
