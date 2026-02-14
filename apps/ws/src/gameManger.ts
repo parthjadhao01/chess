@@ -27,11 +27,15 @@ export class GameManager {
                     }
 
                     const GAME = await db.game.create({
-                        data: { player1Id: this.pendingUser.userId, player2Id: userId },
+                        data: {
+                            player1Id: this.pendingUser.userId,
+                            player2Id: userId },
+
                     });
 
                     const game = new Game(this.pendingUser.socket, socket, GAME.id, this.pendingUser.userId, userId);
                     this.games.push(game);
+
                     this.pendingUser = null;
                     return;
                 } else {
@@ -42,7 +46,7 @@ export class GameManager {
 
             // ---------- MAKE MOVE ----------
             if (message.type === MOVES) {
-                const game = this.games.find((g) => g.player1 === socket || g.player2 === socket);
+                const game = this.games.find((g) => g.player1.Websocket === socket || g.player2.Websocket === socket);
                 if (game) {
                     game.makeMove(socket, message.payload.move, userId);
                 }
@@ -70,7 +74,7 @@ export class GameManager {
         const game = this.games.find((g) => g.GAME_ID === gameId);
         if (!game) return false;
 
-        if (game.player1Id !== userId && game.player2Id !== userId) {
+        if (game.player1.playerId !== userId && game.player2.playerId !== userId) {
             socket.send(JSON.stringify({ type: "reconnect", payload: { status: "failed", error: "Not your game" } }));
             return true;
         }

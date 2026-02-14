@@ -28,7 +28,8 @@ export default function GamePage() {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data)
                 if (message.type === "reconnect") {
-                    reconnect(message.payload.fen, message.payload.moves)
+                    // 2. pass player color in this also
+                    reconnect(message.payload.fen, message.payload.moves ,message.payload.color)
                 }
             }
         }

@@ -3,6 +3,7 @@ import {Square } from "chess.js";
 import {GAME_OVER, MOVES} from "../messages";
 import {useChessStore} from "@/app/store/chess-game-state";
 import {useSocket} from "@/app/socket-provider";
+import Image from "next/image";
 
 function ChessBoard() {
     const { socket, status } = useSocket()
@@ -10,9 +11,10 @@ function ChessBoard() {
     const [to,setTo] = useState<Square | null>(null);
     const chess = useChessStore((state)=>state.chess);
     const board = useChessStore((state)=> state.board);
+    const playerColor = useChessStore((state)=> state.color);
     const applyMove = useChessStore((state)=>state.applyMove)
-
     useEffect(()=>{
+
         if(status !== "connected"){
             return;
         }
@@ -49,41 +51,70 @@ function ChessBoard() {
 
     }
 
-    return (
-        <div>
-            {board.map((row, i) => {
-                return <div key={i} className="flex border-foreground overflow-hidden">
-                    {row.map((square, j) => {
-                        const squareRepresentation = String.fromCharCode(97+(j % 8))+ "" +(8-i) as Square
-                        return <div onClick={()=>{
-                            if (!from){
-                                setFrom(squareRepresentation);
-                            }else{
-                                setTo(squareRepresentation);
-                                socket.send(JSON.stringify({
-                                    type : MOVES,
-                                    payload : {
-                                        move : {
-                                            from,
-                                            to : squareRepresentation
+    const isBlack = playerColor === "black"
+
+    const displayBoard = isBlack
+        ? [...board].reverse().map(row => [...row].reverse())
+        : board
+
+
+        return <div>
+                {displayBoard.map((row, i) => {
+                return (
+                    <div key={i} className="flex border-foreground overflow-hidden">
+                        {row.map((square, j) => {
+                            const file = isBlack ? 7 - j : j
+                            const rank = isBlack ? i : 7 - i
+
+                            const squareRepresentation =
+                                String.fromCharCode(97 + file) + (rank + 1) as Square
+
+                            return (
+                                <div
+                                    key={j}
+                                    onClick={() => {
+                                        if (!from) {
+                                            setFrom(squareRepresentation)
+                                        } else {
+                                            setTo(squareRepresentation)
+                                            socket.send(
+                                                JSON.stringify({
+                                                    type: MOVES,
+                                                    payload: {
+                                                        move: {
+                                                            from,
+                                                            to: squareRepresentation,
+                                                        },
+                                                    },
+                                                })
+                                            )
+                                            applyMove({ from, to: squareRepresentation })
+                                            setFrom(null)
                                         }
-                                    }
-                                }))
-                                applyMove({
-                                    from : from,
-                                    to : squareRepresentation
-                                })
-                                setFrom(null)
-                                // setBoard(chess.board())
-                            }
-                        }} key={j} className={`w-17 h-17 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl cursor-pointer hover:opacity-80 transition-opacity ${(i+j)%2 === 0 ? 'bg-foreground/10' : 'bg-foreground/30'} `}>
-                            {square ? square.type : ""}
-                        </div>
-                    })}
-                </div>
-            })}
+                                    }}
+                                        className={`w-17 h-17 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl cursor-pointer hover:opacity-80 transition-opacity ${
+                                        (i + j) % 2 === 0 ? "bg-foreground/10" : "bg-foreground/30"
+                                    }`}
+                                >
+                                    {square && (
+                                        <Image
+                                            width={50}
+                                            height={50}
+                                            alt={squareRepresentation}
+                                            className="w-[4.25rem]"
+                                            src={`/${square.color === "b" ? `b${square.type}` : `w${square.type}`}.png`}
+                                        />
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
+            )}
         </div>
-    )
+
+
+
 }
 
 export default ChessBoard
