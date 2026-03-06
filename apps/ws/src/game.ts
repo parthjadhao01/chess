@@ -2,6 +2,8 @@ import {WebSocket} from "ws";
 import {Chess} from "chess.js";
 import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
 import {db} from "./db";
+import {createClient} from "redis";
+
 
 interface player {
     playerId : string;
@@ -56,6 +58,7 @@ export class Game {
                 }
             }))
         }
+
     }
 
 
@@ -93,7 +96,7 @@ export class Game {
     public async makeMove(socket: WebSocket, move : {
         from : string,
         to : string
-    }, userId: string) {
+    }, userId: string , redis : any) {
         // validate turn
         if (this.moveCount % 2 === 0 && socket !== this.player1.Websocket) return;
         if (this.moveCount % 2 === 1 && socket !== this.player2.Websocket) return;
@@ -112,15 +115,13 @@ export class Game {
             payload: move
         }));
 
-        await db.move.create({
-            data: {
-                gameId: this.GAME_ID,
-                playerId: userId,
-                from: move.from,
-                to: move.to,
-                moveNo: this.moveCount - 1
-            }
-        });
+        await redis.lPush("moves",JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: userId,
+            from: move.from,
+            to: move.to,
+            moveNo: this.moveCount - 1
+        }))
     }
 
 
