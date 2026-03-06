@@ -2,10 +2,18 @@ import { WebSocket } from "ws";
 import { INIT_GAME, MOVES } from "./messages";
 import { Game } from "./game";
 import { db } from "./db";
+import {createClient, RedisClientType} from "redis";
 
 export class GameManager {
     private games: Game[] = [];
     private pendingUser: { socket: WebSocket; userId: string } | null = null;
+    private redis : any;
+
+    async redisConnect(){
+        this.redis = createClient();
+        await this.redis.connect();
+    }
+
 
     // Concurrency Avoiding Protocol: CAP
     private creatingGame: Set<string> = new Set();
@@ -48,7 +56,7 @@ export class GameManager {
             if (message.type === MOVES) {
                 const game = this.games.find((g) => g.player1.Websocket === socket || g.player2.Websocket === socket);
                 if (game) {
-                    game.makeMove(socket, message.payload.move, userId);
+                    game.makeMove(socket, message.payload.move, userId ,this.redis);
                 }
             }
 

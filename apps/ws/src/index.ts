@@ -22,6 +22,7 @@ declare module "next-auth" {
 const server = http.createServer();
 const wss = new WebSocketServer({ noServer: true });
 const gameManager = new GameManager();
+gameManager.redisConnect();
 
 function getSessionToken(req: any) {
     console.log("fetcing the cookie")
