@@ -2,13 +2,6 @@
 
 This project is a **real-time multiplayer chess platform** built with modern web technologies and designed to be scalable, resilient, and future-ready for decentralized features.
 
----
-
-## Project Status
-**Under Construction** — currently focusing on scalability, deployment, and enhancing gameplay.
-
----
-
 ## Features
 
 This chess platform focuses on **real-time multiplayer gameplay**, resilience, and user experience. Current core features include:
@@ -53,7 +46,7 @@ This chess platform focuses on **real-time multiplayer gameplay**, resilience, a
 ## CI/CD
 
 - **Continuous Integration (CI):** Automatically builds the monorepo whenever changes are pushed.
-- **Continuous Deployment (CD):** Pushes Docker images to Docker Hub for deployment. Currently, tests are not automated in CI.
+- **Continuous Deployment (CD):** Pushes Docker images to Docker Hub for deployment
 
 ---
 
@@ -124,26 +117,3 @@ Each service is independently scalable and connected through Docker’s internal
 | **ws** | WebSocket server handling real-time multiplayer gameplay |
 | **postgres** | PostgreSQL database storing users, games, and moves |
 | **migrate** | Prisma service responsible for applying database migrations |
-
----
-## Current Work / Roadmap
-
-The project is actively being developed. Focus areas include:
-
-1. **Implementing Pub/Sub:** Enables real-time communication between multiple WebSocket instances and players for smooth multiplayer gameplay.
-2. **Redis Integration:** In-memory store for game state, caching, and faster response times.
-3. **Redis Queue:** Handles asynchronous tasks, such as saving moves to the database or sending notifications, without blocking gameplay.
-4. **Dockerization:** Containerizing frontend, backend, and WebSocket servers for easier deployment and scaling.
-5. **Updating CI/CD:** Automating build, test, and deployment process for Dockerized containers.
-6. **Improving Game Experience:** Adding new features, enhancing multiplayer interactions, and optimizing gameplay.
-
----
-
-## Notes
-
-- Currently, all game state is stored in memory; future versions will leverage Redis for pub/sub and persistence.
-- Moves are persisted asynchronously via a Redis queue to improve performance.
-- Frontend, backend, and WebSocket servers are containerized separately for better scalability.
-- CI currently builds and deploys Docker images, but automated tests are planned for future iterations.
-
----
