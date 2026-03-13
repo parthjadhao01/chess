@@ -1,9 +1,6 @@
 import {WebSocket} from "ws";
 import {Chess} from "chess.js";
 import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
-import {db} from "./db";
-import {createClient} from "redis";
-
 
 interface player {
     playerId : string;
@@ -11,11 +8,8 @@ interface player {
 }
 
 export class Game {
-    // 3. use player custome type to store all player related data including color in one object
     public player1 : player;
-    // public player1Id : string;
     public player2 : player;
-    // public player2Id : string;
     public GAME_ID : string;
     private board : Chess;
     private moves : {
@@ -62,15 +56,12 @@ export class Game {
     }
 
 
-    // 2.10 : have reconnect method with arguments WebSocket and userId
     public async reconnect(socket : WebSocket,userId : string){
-        // 2.11 : check which user has given argument userId and modify it websocket
         if (this.player1.playerId === userId){
             this.player1.Websocket = socket as WebSocket;
         }else{
             this.player2.Websocket = socket as WebSocket;
         }
-        // 2.12 : send message to frontend of the user who send the request with message type reconnect and payload moves , board(chess)
         socket.send(JSON.stringify({
             type : "reconnect",
             payload : {
@@ -97,7 +88,6 @@ export class Game {
         from : string,
         to : string
     }, userId: string , redis : any) {
-        // validate turn
         if (this.moveCount % 2 === 0 && socket !== this.player1.Websocket) return;
         if (this.moveCount % 2 === 1 && socket !== this.player2.Websocket) return;
 
@@ -122,7 +112,59 @@ export class Game {
             to: move.to,
             moveNo: this.moveCount - 1
         }))
-    }
 
+        if (this.board.isGameOver()) {
+
+            if (this.board.isCheckmate()) {
+                socket.send(JSON.stringify({
+                    type: GAME_OVER,
+                    payload: {
+                        message: "win",
+                        reason: "checkmate"
+                    }
+                }));
+
+                opponent.Websocket.send(JSON.stringify({
+                    type: GAME_OVER,
+                    payload: {
+                        message: "loss",
+                        reason: "checkmate"
+                    }
+                }));
+
+                return;
+            }
+            if (this.board.isDraw()){
+                let reason : null | string = null;
+
+                if (this.board.isStalemate()) {
+                    reason = "stalemate";
+                }
+                else if (this.board.isDrawByFiftyMoves()) {
+                    reason = "draw by 50-move rule";
+                }
+                else if (this.board.isInsufficientMaterial()) {
+                    reason = "draw due to insufficient material";
+                }
+                else if (this.board.isThreefoldRepetition()) {
+                    reason = "draw by threefold repetition";
+                }
+
+                if (reason) {
+                    const drawPayload = JSON.stringify({
+                        type: GAME_OVER,
+                        payload: {
+                            message: "tie",
+                            reason: reason
+                        }
+                    });
+
+                    socket.send(drawPayload);
+                    opponent.Websocket.send(drawPayload);
+                }
+            }
+        }
+
+    }
 
 }
