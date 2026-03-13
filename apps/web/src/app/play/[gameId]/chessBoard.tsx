@@ -4,15 +4,41 @@ import {GAME_OVER, MOVES} from "../messages";
 import {useChessStore} from "@/app/store/chess-game-state";
 import {useSocket} from "@/app/socket-provider";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+
+interface gameOverPayload{
+    gameOver : boolean;
+    message : string,
+    reason : string
+}
 
 function ChessBoard() {
     const { socket, status } = useSocket()
+    const router = useRouter();
     const [from,setFrom] = useState<Square | null>(null);
+    const [gameOverPayload,setGameOverPayload] = useState<gameOverPayload>({
+        gameOver : false,
+        message : "",
+        reason : ""
+    });
     const [to,setTo] = useState<Square | null>(null);
     const chess = useChessStore((state)=>state.chess);
     const board = useChessStore((state)=> state.board);
     const playerColor = useChessStore((state)=> state.color);
+    const endGame = useChessStore((state)=>state.endGame);
     const applyMove = useChessStore((state)=>state.applyMove)
+
     useEffect(()=>{
 
         if(status !== "connected"){
@@ -33,7 +59,12 @@ function ChessBoard() {
                         console.log("move is made");
                         break;
                     case GAME_OVER :
-                        console.log("game is over");
+                        console.log(message);
+                        setGameOverPayload({
+                            gameOver : true,
+                            message : message.payload.message,
+                            reason : message.payload.reason,
+                        });
                         break;
                 }
             }
@@ -52,6 +83,24 @@ function ChessBoard() {
     }
 
     const isBlack = playerColor === "black"
+
+    if (gameOverPayload.gameOver){
+        return (
+            <AlertDialog open={gameOverPayload.gameOver}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{gameOverPayload.message}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {gameOverPayload.reason}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogAction onClick={() => router.back()}>
+                        Continue
+                    </AlertDialogAction>
+                </AlertDialogContent>
+            </AlertDialog>
+        )
+    }
 
     const displayBoard = isBlack
         ? [...board].reverse().map(row => [...row].reverse())

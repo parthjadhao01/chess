@@ -15,6 +15,8 @@ export default function GamePage() {
     const [opponentTime, setOpponentTime] = useState(600); // 10 minutes in seconds
     const [yourTime, setYourTime] = useState(600);
     const {reconnect} = useChessStore();
+    const gameOver = useChessStore((state)=> state.gameOver);
+
 
     useEffect(() => {
         if (status !== "connected") return
@@ -128,6 +130,11 @@ export default function GamePage() {
                             </div>
                         </div>
                     </div>
+                    {/*{gameOver ? (*/}
+                    {/*    <h1>hello</h1>*/}
+                    {/*):(*/}
+                    {/*    <h2>game over</h2>*/}
+                    {/*)}*/}
                 </div>
             </main>
         </div>
