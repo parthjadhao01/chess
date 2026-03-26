@@ -63,6 +63,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: packages/worker/file
+          file: packages/worker/Dockerfile
           push: 'true'
           tags: parthjadhao/chess-worker:latest
