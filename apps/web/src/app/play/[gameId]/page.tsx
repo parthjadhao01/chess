@@ -12,8 +12,6 @@ export default function GamePage() {
     const {gameId} = useParams<{gameId : string}>()
     const {socket,status} = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
-    const [opponentTime, setOpponentTime] = useState(600); // 10 minutes in seconds
-    const [yourTime, setYourTime] = useState(600);
     const {reconnect} = useChessStore();
     const gameOver = useChessStore((state)=> state.gameOver);
 
@@ -30,7 +28,6 @@ export default function GamePage() {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data)
                 if (message.type === "reconnect") {
-                    // 2. pass player color in this also
                     reconnect(message.payload.fen, message.payload.moves ,message.payload.color)
                 }
             }
@@ -70,9 +67,6 @@ export default function GamePage() {
                                 <p className="text-xs text-muted-foreground">Opponent</p>
                                 <p className="text-lg font-semibold text-foreground">Alex_Chess</p>
                             </div>
-                            <div className="text-right">
-                                <p className="text-2xl font-bold text-foreground font-mono">{formatTime(opponentTime)}</p>
-                            </div>
                         </div>
 
                         {/* Chess Board */}
@@ -84,10 +78,7 @@ export default function GamePage() {
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50">
                             <div>
                                 <p className="text-xs text-muted-foreground">You</p>
-                                <p className="text-lg font-semibold text-foreground">YourUsername</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-2xl font-bold text-foreground font-mono">{formatTime(yourTime)}</p>
+                                <p className="text-lg font-semibold text-foreground">user-1</p>
                             </div>
                         </div>
                     </div>
@@ -130,11 +121,6 @@ export default function GamePage() {
                             </div>
                         </div>
                     </div>
-                    {/*{gameOver ? (*/}
-                    {/*    <h1>hello</h1>*/}
-                    {/*):(*/}
-                    {/*    <h2>game over</h2>*/}
-                    {/*)}*/}
                 </div>
             </main>
         </div>

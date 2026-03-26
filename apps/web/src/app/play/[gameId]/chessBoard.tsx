@@ -10,12 +10,9 @@ import {
     AlertDialogAction,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
 
 interface gameOverPayload{
     gameOver : boolean;
@@ -141,7 +138,7 @@ function ChessBoard() {
                                             setFrom(null)
                                         }
                                     }}
-                                        className={`w-17 h-17 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl cursor-pointer hover:opacity-80 transition-opacity ${
+                                        className={`w-36 h-36 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl cursor-pointer hover:opacity-80 transition-opacity ${
                                         (i + j) % 2 === 0 ? "bg-foreground/10" : "bg-foreground/30"
                                     }`}
                                 >

@@ -105,6 +105,7 @@ export class Game {
             payload: move
         }));
 
+        // 2nd way push to processing list from here
         await redis.lPush("moves",JSON.stringify({
             gameId: this.GAME_ID,
             playerId: userId,
