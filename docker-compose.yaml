@@ -45,6 +45,27 @@ services:
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_URL_INTERNAL=http://web:3000
       - NEXTAUTH_SECRET=supersecret
+      - REDIS_MOVES=redis://redis:6379
+
+  worker :
+    build :
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: chess-worker
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - REDIS_MOVES=redis://redis:6379
+
+  redis :
+    image : redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   postgres:
     image: postgres:16
@@ -71,3 +92,4 @@ services:
 
 volumes:
   postgres_data :
+  redis_data:

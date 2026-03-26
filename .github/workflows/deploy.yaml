@@ -57,3 +57,12 @@ jobs:
           file: packages/db/Dockerfile
           push: true
           tags: parthjadhao/chess-migrate:latest
+
+      # -------- WORKER --------
+      - name: Build & Push chess-worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: packages/worker/file
+          push: 'true'
+          tags: parthjadhao/chess-worker:latest

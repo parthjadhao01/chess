@@ -102,12 +102,17 @@ export function LoginForm({
                     onClick={async ()=>{
                         try {
                             setLoading(true)
-                            await signIn("credentials",{
+                            const result = await signIn("credentials",{
                                 username : username,
-                                password : password
+                                password : password,
+                                redirect : false
                             })
-                            setLoading(false)
-                            router.push("/")
+                            if (result?.error) {
+                                toast.error("Invalid Credential")
+                            }else {
+                                setLoading(false)
+                                router.push("/play")
+                            }
                         }catch(err){
                             toast.error("Something went wrong")
                             console.log(err);

@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { INIT_GAME, MOVES } from "./messages";
 import { Game } from "./game";
 import { db } from "./db";
-import {createClient, RedisClientType} from "redis";
+import {createClient} from "redis";
 
 export class GameManager {
     private games: Game[] = [];
@@ -10,7 +10,7 @@ export class GameManager {
     private redis : any;
 
     async redisConnect(){
-        this.redis = createClient();
+        this.redis = createClient({url : process.env.REDIS_MOVES});
         await this.redis.connect();
     }
 
