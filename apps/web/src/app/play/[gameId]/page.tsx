@@ -1,3 +1,4 @@
+// /play/[gameId]
 "use client"
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
 import MovesTable from "@/app/play/[gameId]/movesTable";
@@ -8,13 +9,12 @@ import {useParams} from "next/navigation";
 import {useChessStore} from "@/app/store/chess-game-state";
 
 export default function GamePage() {
-    // 1. fetch the query gameId from route query of the frontend
     const {gameId} = useParams<{gameId : string}>()
     const {socket,status} = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const {reconnect} = useChessStore();
-    const gameOver = useChessStore((state)=> state.gameOver);
-
+    // const gameOver = useChessStore((state)=> state.gameOver);
+    // isConnectionAlive state variable if it get true from pingpong.ts than invoke given below useEffect
 
     useEffect(() => {
         if (status !== "connected") return
@@ -37,12 +37,6 @@ export default function GamePage() {
 
         return () => socket.removeEventListener("message", handler)
     }, [status, gameId, socket])
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
 
     const handleResign = () => {
         setShowResignConfirm(true);

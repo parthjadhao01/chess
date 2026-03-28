@@ -62,6 +62,7 @@ function ChessBoard() {
                             message : message.payload.message,
                             reason : message.payload.reason,
                         });
+                        sessionStorage.removeItem("activeGameId");
                         break;
                 }
             }

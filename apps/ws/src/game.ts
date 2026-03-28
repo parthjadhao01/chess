@@ -34,7 +34,7 @@ export class Game {
         this.startTime = new Date();
         this.GAME_ID = GAME_ID;
 
-        if (this.player1){
+        if (this.player1 && this.player1.Websocket){
             this.player1.Websocket.send(JSON.stringify({
                 type : INIT_GAME,
                 payload : {
@@ -43,7 +43,7 @@ export class Game {
                 }
             }))
         }
-        if (this.player2){
+        if (this.player2 && this.player2.Websocket){
             this.player2.Websocket.send(JSON.stringify({
                 type : INIT_GAME,
                 payload : {

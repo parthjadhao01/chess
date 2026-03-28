@@ -5,6 +5,7 @@ import { GameManager } from "./gameManger";
 import jwt from "jsonwebtoken"
 import { db } from "./db";
 import {getSession} from "next-auth/react";
+import {clearInterval} from "node:timers";
 
 declare module "next-auth" {
     /**
@@ -58,7 +59,6 @@ server.on("upgrade", async (req, socket, head) => {
                 id : session.user?.id
             }
         })
-        console.log(user)
         if (!user){
             console.log("user not found")
             return;
@@ -75,8 +75,30 @@ server.on("upgrade", async (req, socket, head) => {
 });
 
 wss.on("connection", (ws) => {
-    console.log("Authenticated user:", (ws as any).userId);
     gameManager.addUser(ws,(ws as any).userId);
+    let isAlive = true;
+
+
+    ws.on("pong",() => {
+        isAlive = true;
+    })
+
+    const heartBeat = setInterval(()=>{
+        if(!isAlive){
+            console.log("client unresponsive,terminating connection");
+            clearInterval(heartBeat);
+            ws.terminate();
+            return;
+        }
+        isAlive = false;
+        ws.ping();
+    },3000)
+
+    ws.on("close", () => {
+        clearInterval(heartBeat);
+    });
+
 });
+
 
 server.listen(4000);
