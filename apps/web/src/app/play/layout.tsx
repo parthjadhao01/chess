@@ -1,3 +1,4 @@
+// /page/layout
 "use client"
 
 import { SocketProvider } from "@/app/socket-provider"

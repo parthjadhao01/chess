@@ -1,3 +1,4 @@
+// /play
 "use client"
 import React, {useEffect, useState} from 'react'
 import {INIT_GAME} from "./messages";
@@ -50,6 +51,7 @@ function Play() {
 
             if (message.type === INIT_GAME) {
                 // pass the player color in this
+                sessionStorage.setItem("activeGameId",message.payload.gameId)
                 startNewGame(message.payload.gameId,message.payload.color)
                 setIsMatching(false)
                 router.push(`/play/${message.payload.gameId}`)
@@ -62,6 +64,8 @@ function Play() {
             socket.removeEventListener("message", handler)
         }
     }, [socket, startNewGame, router,status])
+
+
 
     if (status !== "connected"){
         return <div className="min-h-screen bg-background flex items-center justify-center">

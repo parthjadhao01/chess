@@ -15,34 +15,48 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useState<WebSocket | null>(null)
     const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting")
 
-    useEffect(() => {
-        if (socketRef.current) return
-
+    const connect = () => {
         const ws = new WebSocket(WS_URL)
         socketRef.current = ws
 
         ws.onopen = () => {
             setSocket(ws)
             setStatus("connected")
+
+            // on reconnect, rejoin active game if one exists
+            const gameId = sessionStorage.getItem("activeGameId")
+            if (gameId) {
+                ws.send(JSON.stringify({
+                    type: "reconnect",
+                    payload: { gameId }
+                }))
+            }
         }
 
         ws.onclose = () => {
             setStatus("disconnected")
             setSocket(null)
+            socketRef.current = null
+            // auto reconnect after 2 seconds
+            setTimeout(connect, 2000)
         }
 
         ws.onerror = () => {
-            setStatus("disconnected")
-            setSocket(null)
+            ws.close() // triggers onclose which handles reconnect
         }
+    }
+
+    useEffect(() => {
+        if (socketRef.current) return
+        connect()
 
         return () => {
-            ws.close()
+            socketRef.current?.close()
             socketRef.current = null
         }
     }, [])
 
-    if (!socket) return null // or loading screen
+    if (!socket) return null
 
     return (
         <SocketContext.Provider value={{ socket, status }}>
