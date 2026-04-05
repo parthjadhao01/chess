@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/parthjadhao/chess.git'
-            }
-        }
-
         stage('Install pnpm') {
             steps {
                 sh 'npm install -g pnpm'
