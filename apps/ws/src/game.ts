@@ -55,7 +55,32 @@ export class Game {
 
     }
 
+    public async gameResign(resignPlayerWebsocket : WebSocket ,redis : any){
+        const resignPlayer = resignPlayerWebsocket;
+        const opponentPlayer = resignPlayerWebsocket === this.player1.Websocket ? this.player2 : this.player1;
+        resignPlayer.send(JSON.stringify({
+            type : GAME_OVER,
+            payload : {
+                message : "loss",
+                reason : "resignation"
+            }
+        }))
+        opponentPlayer.Websocket.send(JSON.stringify({
+            type : GAME_OVER,
+            payload : {
+                message : "win",
+                reason : "resignation"
+            }
+        }))
 
+        await redis.lPush("moves",JSON.stringify({
+            type : "game_over",
+            gameId: this.GAME_ID,
+            reason: "resignation"
+        }))
+        
+    }
+    
     public async reconnect(socket : WebSocket,userId : string){
         if (this.player1.playerId === userId){
             this.player1.Websocket = socket as WebSocket;
@@ -106,6 +131,7 @@ export class Game {
         }));
 
         await redis.lPush("moves",JSON.stringify({
+            type : "move",
             gameId: this.GAME_ID,
             playerId: userId,
             from: move.from,

@@ -25,15 +25,23 @@ async function main() {
 
         try {
             const data = JSON.parse(element);
-            await db.move.create({
-                data: {
-                    gameId: data.gameId,
-                    playerId: data.playerId,
-                    from: data.from,
-                    to: data.to,
-                    moveNo: data.moveNo
-                }
-            });
+            if (data.type === "move") {
+                await db.move.create({
+                    data: {
+                        gameId: data.gameId,
+                        playerId: data.playerId,
+                        from: data.from,
+                        to: data.to,
+                        moveNo: data.moveNo
+                    }
+                });
+            }
+            if(data.type === "game_over"){
+                await db.game.update({
+                    where : {id : data.gameId},
+                    data : {status : "FINISHED"}
+                });
+            }
             await redis.lRem("processing", 1, element); // only after successful write
         } catch (err) {
             console.error("DB write failed, move preserved in processing:", err);
