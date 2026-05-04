@@ -74,6 +74,22 @@ export class GameManager {
                 // If not in memory, go to DB safely
                 await this.handleDbReconnect(socket, gameId, userId);
             }
+            
+            // ---------- RESIGN ----------
+            if (message.type === "resign" ){
+                const gameId = message.payload?.gameId;;
+                if (!gameId){
+                    socket.send(JSON.stringify({ type: "resign", payload: { status: "failed", error: "Invalid request" } }));
+                    return;
+                }
+                const game = this.games.find((g) => g.GAME_ID === gameId);
+                if (game){
+                    game.gameResign(socket,this.redis);
+                }
+                socket.send(JSON.stringify({ type: "resign", payload: { status: "failed", error : "Game not found" } }));
+                return;
+            }
+
         });
     }
 

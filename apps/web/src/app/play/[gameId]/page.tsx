@@ -13,8 +13,6 @@ export default function GamePage() {
     const {socket,status} = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const {reconnect} = useChessStore();
-    // const gameOver = useChessStore((state)=> state.gameOver);
-    // isConnectionAlive state variable if it get true from pingpong.ts than invoke given below useEffect
 
     useEffect(() => {
         if (status !== "connected") return
@@ -43,8 +41,12 @@ export default function GamePage() {
     };
 
     const confirmResign = () => {
-        // Handle resignation logic
-        console.log('[v0] Game resigned');
+        socket.send(JSON.stringify({
+            type : "resign",
+            payload : {
+                gameId : gameId
+            }
+        }))
     };
 
     return (
