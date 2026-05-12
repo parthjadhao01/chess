@@ -16,6 +16,7 @@
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "chess.js": "^1.4.0",
     "dotenv": "^17.2.3",
     "ws": "^8.19.0",
     "zod": "3"

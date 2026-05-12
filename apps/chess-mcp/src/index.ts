@@ -4,11 +4,13 @@ import { z } from "zod";
 import WebSocket from "ws";
 import dotenv from "dotenv";
 
+
 dotenv.config();
 
 const CHESS_HTTP_API_BASE = process.env.CHESS_HTTP_API_BASE ?? "http://localhost:3001";
 const CHESS_WS_URL = process.env.CHESS_WS_URL ?? "ws://localhost:4000";
 const USER_AGENT = "chess-mcp/1.0";
+const MCP_SECRET = process.env.MCP_SECRET!; 
 
 const server = new McpServer({
     name: "chess-mcp",
@@ -20,6 +22,14 @@ async function httpPost(path: string, body: Record<string, unknown>) {
         method: "POST",
         headers: { "Content-Type": "application/json", "User-Agent": USER_AGENT },
         body: JSON.stringify(body),
+    });
+    return res.json();
+}
+
+async function httpGET(path : string, body : Record<string,unknown>){
+    const res = await fetch(`${CHESS_HTTP_API_BASE}${path}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json", "User-Agent": USER_AGENT, "mcp-secret":MCP_SECRET },
     });
     return res.json();
 }

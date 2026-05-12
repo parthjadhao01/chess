@@ -36,6 +36,9 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
+      chess.js:
+        specifier: ^1.4.0
+        version: 1.4.0
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -85,6 +88,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.29.0
         version: 1.29.0(zod@3.25.76)
+      chess.js:
+        specifier: ^1.4.0
+        version: 1.4.0
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
