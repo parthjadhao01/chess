@@ -36,6 +36,9 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
+      '@types/redis':
+        specifier: ^4.0.11
+        version: 4.0.11
       chess.js:
         specifier: ^1.4.0
         version: 1.4.0
@@ -54,6 +57,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
+      redis:
+        specifier: ^5.11.0
+        version: 5.11.0
     devDependencies:
       '@types/cookie-parser':
         specifier: ^1.4.10
@@ -1974,6 +1980,10 @@ packages:
 
   '@types/react@19.2.2':
     resolution: {integrity: sha512-6mDvHUFSjyT2B2yeNx2nUgMxh9LtOWvkhIU3uePn2I2oyNymUAX1NIsdgviM4CH+JSrp2D2hsMvJOkxY+0wNRA==}
+
+  '@types/redis@4.0.11':
+    resolution: {integrity: sha512-bI+gth8La8Wg/QCR1+V1fhrL9+LZUSWfcqpOj2Kc80ZQ4ffbdL173vQd5wovmoV9i071FU9oP2g6etLuEwb6Rg==}
+    deprecated: This is a stub types definition. redis provides its own type definitions, so you do not need this installed.
 
   '@types/send@1.2.1':
     resolution: {integrity: sha512-arsCikDvlU99zl1g69TcAB3mzZPpxgw0UQnaHeC1Nwb015xp8bknZv5rIfri9xTOcMuaVgvabfIRA7PSZVuZIQ==}
@@ -5875,6 +5885,12 @@ snapshots:
   '@types/react@19.2.2':
     dependencies:
       csstype: 3.2.3
+
+  '@types/redis@4.0.11':
+    dependencies:
+      redis: 5.11.0
+    transitivePeerDependencies:
+      - '@node-rs/xxhash'
 
   '@types/send@1.2.1':
     dependencies:

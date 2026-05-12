@@ -35,17 +35,17 @@ function getSessionToken(req: any) {
     );
 }
 
-async function getUserFromSession(token: string) {
-    console.log("validating the cookies")
-    const payload = jwt.verify(token,"password_nextauth")
-    console.log(payload)
-    const session = await db.session.findUnique({
-        where: { sessionToken: token },
-        include: { user: true }
-    });
-    console.log(session);
-    return session?.user || null;
-}
+// async function getUserFromSession(token: string) {
+//     console.log("validating the cookies")
+//     const payload = jwt.verify(token,"password_nextauth")
+//     console.log(payload)
+//     const session = await db.session?.findUnique({
+//         where: { sessionToken: token },
+//         include: { user: true }
+//     });
+//     console.log(session);
+//     return session?.user || null;
+// }
 
 server.on("upgrade", async (req, socket, head) => {
     try{

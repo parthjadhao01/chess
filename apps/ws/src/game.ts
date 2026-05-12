@@ -97,7 +97,7 @@ export class Game {
         }))
     }
 
-    public applyMove(move: { from: string; to: string }, userId: string) {
+    public applyMove(move: { from: string; to: string }) {
         this.board.move(move);
 
         this.moves.push({
@@ -107,6 +107,26 @@ export class Game {
         });
 
         this.moveCount++;
+    }
+
+    public async makeMoveById(move : {from : string, to : string},redis : any){
+        try {
+            this.applyMove(move);
+        } catch (error) {
+            return;
+        }
+        const payload = JSON.stringify({ type: MOVES, payload: move });
+        this.player1.Websocket.send(payload);
+        this.player2.Websocket.send(payload);
+
+        await redis.lPush("moves",JSON.stringify({
+            type : "move",
+            gameId: this.GAME_ID,
+            playerId: "mcp",
+            from: move.from,
+            to: move.to,
+            moveNo: this.moveCount - 1
+        }))
     }
 
     public async makeMove(socket: WebSocket, move : {
@@ -120,7 +140,7 @@ export class Game {
             this.moveCount % 2 === 0 ? this.player2 : this.player1;
 
         try {
-            this.applyMove(move, userId);
+            this.applyMove(move);
         } catch {
             return;
         }

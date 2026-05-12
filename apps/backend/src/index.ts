@@ -1,11 +1,11 @@
 import express, { NextFunction, Request, Response } from "express"
-import cookieParser from "cookie-parser"
-import jwt from "jsonwebtoken"
 import cors from "cors"
 import {db} from "./db"
 import * as dotenv from "dotenv"
 import crypto from "crypto"
 import { Chess } from "chess.js"
+import {createClient} from "redis";
+
 
 const app = express();
 dotenv.configDotenv()
@@ -15,6 +15,7 @@ app.use(cors({
     origin : process.env.FRONTEND_ORIGIN || "http://localhost:3000"
 }))
 
+const redis = createClient({url : process.env.REDIS_URL});
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 app.post("/api/signup", async (req, res) => {
@@ -154,27 +155,18 @@ app.post("/games/:gameId/move",mcpVerificationMiddleware,async ( req,res)=>{
     if(!game){
         return res.status(404).json({message : "Game not found"})
     }
-
-    //     HTTP server (POST /move)
-    //   │
-    //   ├─ 1. Load game.boardFen from DB
-    //   ├─ 2. new Chess(fen).move({ from, to })  ← validates legality
-    //   ├─ 3. redis.publish("mcp_move_commands", JSON.stringify({ gameId, from, to }))
-    //   └─ 4. Return 200 immediately
-
-    // WS server (new subscriber in GameManager)
-    //   │
-    //   ├─ subscribe to "mcp_move_commands"
-    //   ├─ on message: find game by g.GAME_ID === gameId  ← use gameId, not socket
-    //   ├─ add a new method: game.makeMoveById(move)
-    //   │     ├─ applies to this.board (chess.js instance)
-    //   │     ├─ broadcasts to BOTH player sockets (player1 and player2 need to see it)
-    //   │     └─ redis.lPush("moves", ...)  ← existing persistence path
-    //   └─ if game not in memory: game is not live, return error to HTTP server via another channel
-    res.json({
-        message : "Move recorded",
-        
-    })
+    const chess = new Chess(game.boardFen);
+    try {
+        chess.move({ from, to });
+    } catch {
+        return res.status(422).json({ message: "Illegal move" });
+    }
+    try {
+        await redis.publish("mcp_move_commands", JSON.stringify({ gameId, from, to }));
+    } catch {
+        return res.status(500).json({ message: "Failed to publish move command" });
+    }
+    res.json({ message: "Move accepted" });
 })
 
 
@@ -188,6 +180,11 @@ app.post("/",(req,res)=>{
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT,()=>{
-    console.log(`Authentication-Server started on port ${PORT}`)
+redis.connect().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Authentication-Server started on port ${PORT}`)
+    })
+}).catch((err) => {
+    console.error("Failed to connect to Redis:", err);
+    process.exit(1);
 })
