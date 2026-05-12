@@ -122,6 +122,7 @@ export class Game {
         await redis.lPush("moves",JSON.stringify({
             type : "move",
             gameId: this.GAME_ID,
+            fen : this.board.fen(),
             playerId: "mcp",
             from: move.from,
             to: move.to,
@@ -153,6 +154,7 @@ export class Game {
         await redis.lPush("moves",JSON.stringify({
             type : "move",
             gameId: this.GAME_ID,
+            fen : this.board.fen(),
             playerId: userId,
             from: move.from,
             to: move.to,

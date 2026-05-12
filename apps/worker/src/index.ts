@@ -35,6 +35,11 @@ async function main() {
                         moveNo: data.moveNo
                     }
                 });
+                console.log(data.fen);
+                await db.game.update({
+                    where : {id : data.gameId},
+                    data : {boardFen : data.fen}
+                })
             }
             if(data.type === "game_over"){
                 await db.game.update({

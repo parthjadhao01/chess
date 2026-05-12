@@ -6,7 +6,9 @@ import dotenv from "dotenv";
 import { Chess } from "chess.js";
 
 
-dotenv.config();
+dotenv.config({
+    quiet : true
+});
 
 const CHESS_HTTP_API_BASE = process.env.CHESS_HTTP_API_BASE ?? "http://localhost:3001";
 const CHESS_WS_URL = process.env.CHESS_WS_URL ?? "ws://localhost:4000";
@@ -36,7 +38,7 @@ async function httpMcpPost(path: string, body: Record<string, unknown>) {
     return res.json();
 }
 
-async function httpGET(path : string, body : Record<string,unknown>){
+async function httpGET(path : string){
     const res = await fetch(`${CHESS_HTTP_API_BASE}${path}`, {
         method: "GET",
         headers: { "Content-Type": "application/json", "User-Agent": USER_AGENT, "mcp-secret":MCP_SECRET },
@@ -105,7 +107,7 @@ server.tool(
         gameId: z.string().min(1).describe("The game ID to get legal moves for"),
     },
     async ({ gameId }) => {
-        const data = await httpGET(`/games/${gameId}/fen`, {});
+        const data = await httpGET(`/games/${gameId}/fen`);
         if (!data.fen) {
             return { content: [{ type: "text", text: JSON.stringify(data) }] };
         }
@@ -183,7 +185,7 @@ server.tool(
         playingAs: z.enum(["white", "black"]).describe("The color Claude is playing as"),
     },
     async ({ gameId, move, playingAs }) => {
-        const fenData = await httpGET(`/games/${gameId}/fen`, {});
+        const fenData = await httpGET(`/games/${gameId}/fen`);
         if (!fenData.fen) {
             return { content: [{ type: "text", text: JSON.stringify(fenData) }] };
         }
@@ -219,6 +221,22 @@ server.tool(
         };
     }
 );
+
+
+server.tool(
+    "get_game_history",
+    "analyze all the moves played in a game and return a strategic analysis of the game flow and key moments where user could have improved",
+    {
+        gameId: z.string().min(1).describe("The game ID to make a move in"),
+    },
+    async ({gameId}) => {
+        const moves = await httpGET(`/games/${gameId}/moves`);
+        return {
+            content: [{ type: "text", text: JSON.stringify({ moves }) }],
+        };
+        
+    }
+)
 
 server.tool(
     "resign",

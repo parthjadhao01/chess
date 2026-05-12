@@ -71,7 +71,7 @@ app.post("/api/login", async (req, res) => {
 const mcpVerificationMiddleware = (req : Request , res : Response ,next : NextFunction) => {
     try {
         const secret = req.headers["mcp-secret"] as string;
-        if (!secret || !crypto.timingSafeEqual(Buffer.from(secret), Buffer.from(process.env.MCP_SECRET!))) {
+        if (secret !== process.env.MCP_SECRET) {
             return res.status(401).json({ message: "Unauthorized Request" });
         }
         next()
@@ -80,7 +80,7 @@ const mcpVerificationMiddleware = (req : Request , res : Response ,next : NextFu
     }
 }
 
-app.get("/games/:gameId/fen",mcpVerificationMiddleware, async (req,res)=>{
+app.get("/games/:gameId/fen", async (req,res)=>{
         const {gameId} = req.params as {gameId? : string};
         const game = await db.game.findUnique({
             where : {
@@ -95,7 +95,7 @@ app.get("/games/:gameId/fen",mcpVerificationMiddleware, async (req,res)=>{
     
 
 
-app.get("/games/:gameId/moves", mcpVerificationMiddleware, async (req,res)=>{
+app.get("/games/:gameId/moves", async (req,res)=>{
     const {gameId} = req.params as {gameId? : string};
     const game = await db.game.findUnique({
         where : {
@@ -115,7 +115,7 @@ app.get("/games/:gameId/moves", mcpVerificationMiddleware, async (req,res)=>{
     res.json({moves})
 })
 
-app.get("/games/:gameId/state", mcpVerificationMiddleware, async (req ,res)=>{
+app.get("/games/:gameId/state", async (req ,res)=>{
     const {gameId} = req.params as {gameId? : string};
     const game = await db.game.findUnique({
         where : {
@@ -141,7 +141,7 @@ app.get("/games/:gameId/state", mcpVerificationMiddleware, async (req ,res)=>{
     })
 })
 
-app.post("/games/:gameId/move",mcpVerificationMiddleware,async ( req,res)=>{
+app.post("/games/:gameId/move",async ( req,res)=>{
     const {gameId} = req.params as {gameId? : string};
     const {from , to} = req.body as {from? : string , to? : string};
     if (!gameId || !from || !to) {
