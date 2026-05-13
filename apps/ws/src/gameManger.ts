@@ -7,11 +7,22 @@ import {createClient} from "redis";
 export class GameManager {
     private games: Game[] = [];
     private pendingUser: { socket: WebSocket; userId: string } | null = null;
-    private redis : any;
+    private redis: any;
+    private subscriber: any;
 
     async redisConnect(){
-        this.redis = createClient({url : process.env.REDIS_MOVES});
+        this.redis = createClient({url : process.env.REDIS_URL});
         await this.redis.connect();
+        this.subscriber = this.redis.duplicate();
+        await this.subscriber.connect();
+        await this.subscriber.subscribe("mcp_move_commands", (raw: string) => {
+            const { gameId, from, to } = JSON.parse(raw);
+            const game = this.games.find((g) => g.GAME_ID === gameId);
+            if (!game) return;
+            game.makeMoveById({ from, to }, this.redis).catch((err: unknown) => {
+                console.error("makeMoveById failed:", err);
+            });
+        });
     }
 
 
@@ -147,7 +158,7 @@ export class GameManager {
                 from :string,
                 to : string ,
                 playerId : string
-            }) => board.applyMove({ from: m.from, to: m.to }, m.playerId));
+            }) => board.applyMove({ from: m.from, to: m.to }));
 
             this.games.push(board);
 

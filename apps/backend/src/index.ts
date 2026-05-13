@@ -1,9 +1,11 @@
-import express from "express"
-import cookieParser from "cookie-parser"
-import jwt from "jsonwebtoken"
+import express, { NextFunction, Request, Response } from "express"
 import cors from "cors"
 import {db} from "./db"
 import * as dotenv from "dotenv"
+import crypto from "crypto"
+import { Chess } from "chess.js"
+import {createClient} from "redis";
+
 
 const app = express();
 dotenv.configDotenv()
@@ -13,6 +15,7 @@ app.use(cors({
     origin : process.env.FRONTEND_ORIGIN || "http://localhost:3000"
 }))
 
+const redis = createClient({url : process.env.REDIS_URL});
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 app.post("/api/signup", async (req, res) => {
@@ -65,6 +68,107 @@ app.post("/api/login", async (req, res) => {
         res.status(500).json({ error: err })
     }
 })
+const mcpVerificationMiddleware = (req : Request , res : Response ,next : NextFunction) => {
+    try {
+        const secret = req.headers["mcp-secret"] as string;
+        if (secret !== process.env.MCP_SECRET) {
+            return res.status(401).json({ message: "Unauthorized Request" });
+        }
+        next()
+    } catch (error) {
+        res.status(500).json({ message : "Unauthorized Request" })
+    }
+}
+
+app.get("/games/:gameId/fen", async (req,res)=>{
+        const {gameId} = req.params as {gameId? : string};
+        const game = await db.game.findUnique({
+            where : {
+                id : gameId
+            }
+        })
+        if(!game){
+            return res.status(404).json({message : "Game not found"})
+        }
+        res.json({fen : game.boardFen})
+    })
+    
+
+
+app.get("/games/:gameId/moves", async (req,res)=>{
+    const {gameId} = req.params as {gameId? : string};
+    const game = await db.game.findUnique({
+        where : {
+            id : gameId
+        }
+    })
+    if(!game){
+        return res.status(404).json({message : 
+            "Game not found",
+        })
+    }
+    const moves = await db.move.findMany({
+        where : {
+            gameId : gameId
+        }
+    })
+    res.json({moves})
+})
+
+app.get("/games/:gameId/state", async (req ,res)=>{
+    const {gameId} = req.params as {gameId? : string};
+    const game = await db.game.findUnique({
+        where : {
+            id : gameId
+        }
+    })
+    if(!game){
+        return res.status(404).json({message : "Game not found"})
+    }
+    const moves = await db.move.findMany({
+        where : {
+            gameId : gameId
+        }
+    })
+    const chess = new Chess(game.boardFen)
+    res.json({
+        game,
+        moves,
+        turn: chess.turn(),           // 'w' or 'b'
+        inCheck: chess.inCheck(),
+        isCheckmate: chess.isCheckmate(),
+        isDraw: chess.isDraw(),
+    })
+})
+
+app.post("/games/:gameId/move",async ( req,res)=>{
+    const {gameId} = req.params as {gameId? : string};
+    const {from , to} = req.body as {from? : string , to? : string};
+    if (!gameId || !from || !to) {
+        return res.status(400).json({message : "gameId, from and to are required"})
+    }
+    const game = await db.game.findUnique({
+        where : {
+            id : gameId
+        }
+    })
+    if(!game){
+        return res.status(404).json({message : "Game not found"})
+    }
+    const chess = new Chess(game.boardFen);
+    try {
+        chess.move({ from, to });
+    } catch {
+        return res.status(422).json({ message: "Illegal move" });
+    }
+    try {
+        await redis.publish("mcp_move_commands", JSON.stringify({ gameId, from, to }));
+    } catch {
+        return res.status(500).json({ message: "Failed to publish move command" });
+    }
+    res.json({ message: "Move accepted" });
+})
+
 
 app.post("/",(req,res)=>{
     console.log(JWT_SECRET)
@@ -76,6 +180,11 @@ app.post("/",(req,res)=>{
 
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT,()=>{
-    console.log(`Authentication-Server started on port ${PORT}`)
+redis.connect().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Authentication-Server started on port ${PORT}`)
+    })
+}).catch((err) => {
+    console.error("Failed to connect to Redis:", err);
+    process.exit(1);
 })
