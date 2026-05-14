@@ -15,7 +15,7 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "dependsOn": ["^db:generate"],
+      "dependsOn": ["^db:generate", "chess-mcp#build"],
       "cache": false,
       "persistent": true
     },
