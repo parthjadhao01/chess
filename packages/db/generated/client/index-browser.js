@@ -149,14 +149,55 @@ exports.Prisma.MoveScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ConversationSessionScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  gameId: 'gameId',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  totalTokens: 'totalTokens',
+  promptTokens: 'promptTokens',
+  completionTokens: 'completionTokens'
+};
+
+exports.Prisma.ConversationLogScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  type: 'type',
+  toolName: 'toolName',
+  args: 'args',
+  result: 'result',
+  policyDecision: 'policyDecision',
+  policyRuleId: 'policyRuleId',
+  policyReason: 'policyReason',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.GameStatus = exports.$Enums.GameStatus = {
   ONGOING: 'ONGOING',
@@ -164,10 +205,23 @@ exports.GameStatus = exports.$Enums.GameStatus = {
   ABANDONED: 'ABANDONED'
 };
 
+exports.LogType = exports.$Enums.LogType = {
+  TOOL_CALL: 'TOOL_CALL',
+  POLICY_ALLOW: 'POLICY_ALLOW',
+  POLICY_BLOCK: 'POLICY_BLOCK',
+  POLICY_PENDING: 'POLICY_PENDING',
+  POLICY_RESOLVED: 'POLICY_RESOLVED',
+  TOOL_RESULT: 'TOOL_RESULT',
+  TOOL_ERROR: 'TOOL_ERROR',
+  AI_RESPONSE: 'AI_RESPONSE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Game: 'Game',
-  Move: 'Move'
+  Move: 'Move',
+  ConversationSession: 'ConversationSession',
+  ConversationLog: 'ConversationLog'
 };
 
 /**

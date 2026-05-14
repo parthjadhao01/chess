@@ -28,6 +28,16 @@ export type Game = $Result.DefaultSelection<Prisma.$GamePayload>
  * 
  */
 export type Move = $Result.DefaultSelection<Prisma.$MovePayload>
+/**
+ * Model ConversationSession
+ * 
+ */
+export type ConversationSession = $Result.DefaultSelection<Prisma.$ConversationSessionPayload>
+/**
+ * Model ConversationLog
+ * 
+ */
+export type ConversationLog = $Result.DefaultSelection<Prisma.$ConversationLogPayload>
 
 /**
  * Enums
@@ -41,11 +51,29 @@ export namespace $Enums {
 
 export type GameStatus = (typeof GameStatus)[keyof typeof GameStatus]
 
+
+export const LogType: {
+  TOOL_CALL: 'TOOL_CALL',
+  POLICY_ALLOW: 'POLICY_ALLOW',
+  POLICY_BLOCK: 'POLICY_BLOCK',
+  POLICY_PENDING: 'POLICY_PENDING',
+  POLICY_RESOLVED: 'POLICY_RESOLVED',
+  TOOL_RESULT: 'TOOL_RESULT',
+  TOOL_ERROR: 'TOOL_ERROR',
+  AI_RESPONSE: 'AI_RESPONSE'
+};
+
+export type LogType = (typeof LogType)[keyof typeof LogType]
+
 }
 
 export type GameStatus = $Enums.GameStatus
 
 export const GameStatus: typeof $Enums.GameStatus
+
+export type LogType = $Enums.LogType
+
+export const LogType: typeof $Enums.LogType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -194,6 +222,26 @@ export class PrismaClient<
     * ```
     */
   get move(): Prisma.MoveDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversationSession`: Exposes CRUD operations for the **ConversationSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversationSessions
+    * const conversationSessions = await prisma.conversationSession.findMany()
+    * ```
+    */
+  get conversationSession(): Prisma.ConversationSessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conversationLog`: Exposes CRUD operations for the **ConversationLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConversationLogs
+    * const conversationLogs = await prisma.conversationLog.findMany()
+    * ```
+    */
+  get conversationLog(): Prisma.ConversationLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -637,7 +685,9 @@ export namespace Prisma {
   export const ModelName: {
     User: 'User',
     Game: 'Game',
-    Move: 'Move'
+    Move: 'Move',
+    ConversationSession: 'ConversationSession',
+    ConversationLog: 'ConversationLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -656,7 +706,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "game" | "move"
+      modelProps: "user" | "game" | "move" | "conversationSession" | "conversationLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -882,6 +932,154 @@ export namespace Prisma {
           }
         }
       }
+      ConversationSession: {
+        payload: Prisma.$ConversationSessionPayload<ExtArgs>
+        fields: Prisma.ConversationSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversationSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversationSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.ConversationSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversationSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          findMany: {
+            args: Prisma.ConversationSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
+          }
+          create: {
+            args: Prisma.ConversationSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          createMany: {
+            args: Prisma.ConversationSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversationSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.ConversationSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          update: {
+            args: Prisma.ConversationSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversationSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversationSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversationSessionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversationSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.ConversationSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversationSession>
+          }
+          groupBy: {
+            args: Prisma.ConversationSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversationSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversationSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversationSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConversationLog: {
+        payload: Prisma.$ConversationLogPayload<ExtArgs>
+        fields: Prisma.ConversationLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConversationLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConversationLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          findFirst: {
+            args: Prisma.ConversationLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConversationLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          findMany: {
+            args: Prisma.ConversationLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
+          }
+          create: {
+            args: Prisma.ConversationLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          createMany: {
+            args: Prisma.ConversationLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConversationLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
+          }
+          delete: {
+            args: Prisma.ConversationLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          update: {
+            args: Prisma.ConversationLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConversationLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConversationLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConversationLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.ConversationLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConversationLogPayload>
+          }
+          aggregate: {
+            args: Prisma.ConversationLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConversationLog>
+          }
+          groupBy: {
+            args: Prisma.ConversationLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConversationLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConversationLogCountArgs<ExtArgs>
+            result: $Utils.Optional<ConversationLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -981,6 +1179,8 @@ export namespace Prisma {
     user?: UserOmit
     game?: GameOmit
     move?: MoveOmit
+    conversationSession?: ConversationSessionOmit
+    conversationLog?: ConversationLogOmit
   }
 
   /* Types for Logging */
@@ -1133,6 +1333,37 @@ export namespace Prisma {
    */
   export type GameCountOutputTypeCountMovesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: MoveWhereInput
+  }
+
+
+  /**
+   * Count Type ConversationSessionCountOutputType
+   */
+
+  export type ConversationSessionCountOutputType = {
+    logs: number
+  }
+
+  export type ConversationSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    logs?: boolean | ConversationSessionCountOutputTypeCountLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ConversationSessionCountOutputType without action
+   */
+  export type ConversationSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSessionCountOutputType
+     */
+    select?: ConversationSessionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ConversationSessionCountOutputType without action
+   */
+  export type ConversationSessionCountOutputTypeCountLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationLogWhereInput
   }
 
 
@@ -4515,6 +4746,2319 @@ export namespace Prisma {
 
 
   /**
+   * Model ConversationSession
+   */
+
+  export type AggregateConversationSession = {
+    _count: ConversationSessionCountAggregateOutputType | null
+    _avg: ConversationSessionAvgAggregateOutputType | null
+    _sum: ConversationSessionSumAggregateOutputType | null
+    _min: ConversationSessionMinAggregateOutputType | null
+    _max: ConversationSessionMaxAggregateOutputType | null
+  }
+
+  export type ConversationSessionAvgAggregateOutputType = {
+    totalTokens: number | null
+    promptTokens: number | null
+    completionTokens: number | null
+  }
+
+  export type ConversationSessionSumAggregateOutputType = {
+    totalTokens: number | null
+    promptTokens: number | null
+    completionTokens: number | null
+  }
+
+  export type ConversationSessionMinAggregateOutputType = {
+    id: string | null
+    endpoint: string | null
+    gameId: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    totalTokens: number | null
+    promptTokens: number | null
+    completionTokens: number | null
+  }
+
+  export type ConversationSessionMaxAggregateOutputType = {
+    id: string | null
+    endpoint: string | null
+    gameId: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    totalTokens: number | null
+    promptTokens: number | null
+    completionTokens: number | null
+  }
+
+  export type ConversationSessionCountAggregateOutputType = {
+    id: number
+    endpoint: number
+    gameId: number
+    startedAt: number
+    endedAt: number
+    totalTokens: number
+    promptTokens: number
+    completionTokens: number
+    _all: number
+  }
+
+
+  export type ConversationSessionAvgAggregateInputType = {
+    totalTokens?: true
+    promptTokens?: true
+    completionTokens?: true
+  }
+
+  export type ConversationSessionSumAggregateInputType = {
+    totalTokens?: true
+    promptTokens?: true
+    completionTokens?: true
+  }
+
+  export type ConversationSessionMinAggregateInputType = {
+    id?: true
+    endpoint?: true
+    gameId?: true
+    startedAt?: true
+    endedAt?: true
+    totalTokens?: true
+    promptTokens?: true
+    completionTokens?: true
+  }
+
+  export type ConversationSessionMaxAggregateInputType = {
+    id?: true
+    endpoint?: true
+    gameId?: true
+    startedAt?: true
+    endedAt?: true
+    totalTokens?: true
+    promptTokens?: true
+    completionTokens?: true
+  }
+
+  export type ConversationSessionCountAggregateInputType = {
+    id?: true
+    endpoint?: true
+    gameId?: true
+    startedAt?: true
+    endedAt?: true
+    totalTokens?: true
+    promptTokens?: true
+    completionTokens?: true
+    _all?: true
+  }
+
+  export type ConversationSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationSession to aggregate.
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationSessions to fetch.
+     */
+    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversationSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversationSessions
+    **/
+    _count?: true | ConversationSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ConversationSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ConversationSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversationSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversationSessionMaxAggregateInputType
+  }
+
+  export type GetConversationSessionAggregateType<T extends ConversationSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversationSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversationSession[P]>
+      : GetScalarType<T[P], AggregateConversationSession[P]>
+  }
+
+
+
+
+  export type ConversationSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationSessionWhereInput
+    orderBy?: ConversationSessionOrderByWithAggregationInput | ConversationSessionOrderByWithAggregationInput[]
+    by: ConversationSessionScalarFieldEnum[] | ConversationSessionScalarFieldEnum
+    having?: ConversationSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversationSessionCountAggregateInputType | true
+    _avg?: ConversationSessionAvgAggregateInputType
+    _sum?: ConversationSessionSumAggregateInputType
+    _min?: ConversationSessionMinAggregateInputType
+    _max?: ConversationSessionMaxAggregateInputType
+  }
+
+  export type ConversationSessionGroupByOutputType = {
+    id: string
+    endpoint: string
+    gameId: string | null
+    startedAt: Date
+    endedAt: Date | null
+    totalTokens: number
+    promptTokens: number
+    completionTokens: number
+    _count: ConversationSessionCountAggregateOutputType | null
+    _avg: ConversationSessionAvgAggregateOutputType | null
+    _sum: ConversationSessionSumAggregateOutputType | null
+    _min: ConversationSessionMinAggregateOutputType | null
+    _max: ConversationSessionMaxAggregateOutputType | null
+  }
+
+  type GetConversationSessionGroupByPayload<T extends ConversationSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversationSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversationSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversationSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversationSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversationSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    endpoint?: boolean
+    gameId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    totalTokens?: boolean
+    promptTokens?: boolean
+    completionTokens?: boolean
+    logs?: boolean | ConversationSession$logsArgs<ExtArgs>
+    _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationSession"]>
+
+  export type ConversationSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    endpoint?: boolean
+    gameId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    totalTokens?: boolean
+    promptTokens?: boolean
+    completionTokens?: boolean
+  }, ExtArgs["result"]["conversationSession"]>
+
+  export type ConversationSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    endpoint?: boolean
+    gameId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    totalTokens?: boolean
+    promptTokens?: boolean
+    completionTokens?: boolean
+  }, ExtArgs["result"]["conversationSession"]>
+
+  export type ConversationSessionSelectScalar = {
+    id?: boolean
+    endpoint?: boolean
+    gameId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    totalTokens?: boolean
+    promptTokens?: boolean
+    completionTokens?: boolean
+  }
+
+  export type ConversationSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "endpoint" | "gameId" | "startedAt" | "endedAt" | "totalTokens" | "promptTokens" | "completionTokens", ExtArgs["result"]["conversationSession"]>
+  export type ConversationSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    logs?: boolean | ConversationSession$logsArgs<ExtArgs>
+    _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ConversationSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type ConversationSessionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $ConversationSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversationSession"
+    objects: {
+      logs: Prisma.$ConversationLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      endpoint: string
+      gameId: string | null
+      startedAt: Date
+      endedAt: Date | null
+      totalTokens: number
+      promptTokens: number
+      completionTokens: number
+    }, ExtArgs["result"]["conversationSession"]>
+    composites: {}
+  }
+
+  type ConversationSessionGetPayload<S extends boolean | null | undefined | ConversationSessionDefaultArgs> = $Result.GetResult<Prisma.$ConversationSessionPayload, S>
+
+  type ConversationSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversationSessionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversationSessionCountAggregateInputType | true
+    }
+
+  export interface ConversationSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationSession'], meta: { name: 'ConversationSession' } }
+    /**
+     * Find zero or one ConversationSession that matches the filter.
+     * @param {ConversationSessionFindUniqueArgs} args - Arguments to find a ConversationSession
+     * @example
+     * // Get one ConversationSession
+     * const conversationSession = await prisma.conversationSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversationSessionFindUniqueArgs>(args: SelectSubset<T, ConversationSessionFindUniqueArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversationSession that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversationSessionFindUniqueOrThrowArgs} args - Arguments to find a ConversationSession
+     * @example
+     * // Get one ConversationSession
+     * const conversationSession = await prisma.conversationSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversationSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionFindFirstArgs} args - Arguments to find a ConversationSession
+     * @example
+     * // Get one ConversationSession
+     * const conversationSession = await prisma.conversationSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversationSessionFindFirstArgs>(args?: SelectSubset<T, ConversationSessionFindFirstArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionFindFirstOrThrowArgs} args - Arguments to find a ConversationSession
+     * @example
+     * // Get one ConversationSession
+     * const conversationSession = await prisma.conversationSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversationSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversationSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversationSessions
+     * const conversationSessions = await prisma.conversationSession.findMany()
+     * 
+     * // Get first 10 ConversationSessions
+     * const conversationSessions = await prisma.conversationSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversationSessionWithIdOnly = await prisma.conversationSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversationSessionFindManyArgs>(args?: SelectSubset<T, ConversationSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversationSession.
+     * @param {ConversationSessionCreateArgs} args - Arguments to create a ConversationSession.
+     * @example
+     * // Create one ConversationSession
+     * const ConversationSession = await prisma.conversationSession.create({
+     *   data: {
+     *     // ... data to create a ConversationSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversationSessionCreateArgs>(args: SelectSubset<T, ConversationSessionCreateArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversationSessions.
+     * @param {ConversationSessionCreateManyArgs} args - Arguments to create many ConversationSessions.
+     * @example
+     * // Create many ConversationSessions
+     * const conversationSession = await prisma.conversationSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversationSessionCreateManyArgs>(args?: SelectSubset<T, ConversationSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversationSessions and returns the data saved in the database.
+     * @param {ConversationSessionCreateManyAndReturnArgs} args - Arguments to create many ConversationSessions.
+     * @example
+     * // Create many ConversationSessions
+     * const conversationSession = await prisma.conversationSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversationSessions and only return the `id`
+     * const conversationSessionWithIdOnly = await prisma.conversationSession.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversationSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversationSession.
+     * @param {ConversationSessionDeleteArgs} args - Arguments to delete one ConversationSession.
+     * @example
+     * // Delete one ConversationSession
+     * const ConversationSession = await prisma.conversationSession.delete({
+     *   where: {
+     *     // ... filter to delete one ConversationSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversationSessionDeleteArgs>(args: SelectSubset<T, ConversationSessionDeleteArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversationSession.
+     * @param {ConversationSessionUpdateArgs} args - Arguments to update one ConversationSession.
+     * @example
+     * // Update one ConversationSession
+     * const conversationSession = await prisma.conversationSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversationSessionUpdateArgs>(args: SelectSubset<T, ConversationSessionUpdateArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversationSessions.
+     * @param {ConversationSessionDeleteManyArgs} args - Arguments to filter ConversationSessions to delete.
+     * @example
+     * // Delete a few ConversationSessions
+     * const { count } = await prisma.conversationSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversationSessionDeleteManyArgs>(args?: SelectSubset<T, ConversationSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversationSessions
+     * const conversationSession = await prisma.conversationSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversationSessionUpdateManyArgs>(args: SelectSubset<T, ConversationSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationSessions and returns the data updated in the database.
+     * @param {ConversationSessionUpdateManyAndReturnArgs} args - Arguments to update many ConversationSessions.
+     * @example
+     * // Update many ConversationSessions
+     * const conversationSession = await prisma.conversationSession.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversationSessions and only return the `id`
+     * const conversationSessionWithIdOnly = await prisma.conversationSession.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversationSessionUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationSessionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversationSession.
+     * @param {ConversationSessionUpsertArgs} args - Arguments to update or create a ConversationSession.
+     * @example
+     * // Update or create a ConversationSession
+     * const conversationSession = await prisma.conversationSession.upsert({
+     *   create: {
+     *     // ... data to create a ConversationSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversationSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversationSessionUpsertArgs>(args: SelectSubset<T, ConversationSessionUpsertArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversationSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionCountArgs} args - Arguments to filter ConversationSessions to count.
+     * @example
+     * // Count the number of ConversationSessions
+     * const count = await prisma.conversationSession.count({
+     *   where: {
+     *     // ... the filter for the ConversationSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversationSessionCountArgs>(
+      args?: Subset<T, ConversationSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversationSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversationSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversationSessionAggregateArgs>(args: Subset<T, ConversationSessionAggregateArgs>): Prisma.PrismaPromise<GetConversationSessionAggregateType<T>>
+
+    /**
+     * Group by ConversationSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversationSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversationSessionGroupByArgs['orderBy'] }
+        : { orderBy?: ConversationSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversationSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversationSession model
+   */
+  readonly fields: ConversationSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversationSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversationSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    logs<T extends ConversationSession$logsArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSession$logsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversationSession model
+   */
+  interface ConversationSessionFieldRefs {
+    readonly id: FieldRef<"ConversationSession", 'String'>
+    readonly endpoint: FieldRef<"ConversationSession", 'String'>
+    readonly gameId: FieldRef<"ConversationSession", 'String'>
+    readonly startedAt: FieldRef<"ConversationSession", 'DateTime'>
+    readonly endedAt: FieldRef<"ConversationSession", 'DateTime'>
+    readonly totalTokens: FieldRef<"ConversationSession", 'Int'>
+    readonly promptTokens: FieldRef<"ConversationSession", 'Int'>
+    readonly completionTokens: FieldRef<"ConversationSession", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversationSession findUnique
+   */
+  export type ConversationSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationSession to fetch.
+     */
+    where: ConversationSessionWhereUniqueInput
+  }
+
+  /**
+   * ConversationSession findUniqueOrThrow
+   */
+  export type ConversationSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationSession to fetch.
+     */
+    where: ConversationSessionWhereUniqueInput
+  }
+
+  /**
+   * ConversationSession findFirst
+   */
+  export type ConversationSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationSession to fetch.
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationSessions to fetch.
+     */
+    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationSessions.
+     */
+    cursor?: ConversationSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationSessions.
+     */
+    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationSession findFirstOrThrow
+   */
+  export type ConversationSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationSession to fetch.
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationSessions to fetch.
+     */
+    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationSessions.
+     */
+    cursor?: ConversationSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationSessions.
+     */
+    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationSession findMany
+   */
+  export type ConversationSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationSessions to fetch.
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationSessions to fetch.
+     */
+    orderBy?: ConversationSessionOrderByWithRelationInput | ConversationSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversationSessions.
+     */
+    cursor?: ConversationSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationSessions.
+     */
+    skip?: number
+    distinct?: ConversationSessionScalarFieldEnum | ConversationSessionScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationSession create
+   */
+  export type ConversationSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversationSession.
+     */
+    data: XOR<ConversationSessionCreateInput, ConversationSessionUncheckedCreateInput>
+  }
+
+  /**
+   * ConversationSession createMany
+   */
+  export type ConversationSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversationSessions.
+     */
+    data: ConversationSessionCreateManyInput | ConversationSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationSession createManyAndReturn
+   */
+  export type ConversationSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversationSessions.
+     */
+    data: ConversationSessionCreateManyInput | ConversationSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationSession update
+   */
+  export type ConversationSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversationSession.
+     */
+    data: XOR<ConversationSessionUpdateInput, ConversationSessionUncheckedUpdateInput>
+    /**
+     * Choose, which ConversationSession to update.
+     */
+    where: ConversationSessionWhereUniqueInput
+  }
+
+  /**
+   * ConversationSession updateMany
+   */
+  export type ConversationSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversationSessions.
+     */
+    data: XOR<ConversationSessionUpdateManyMutationInput, ConversationSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationSessions to update
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * Limit how many ConversationSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationSession updateManyAndReturn
+   */
+  export type ConversationSessionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversationSessions.
+     */
+    data: XOR<ConversationSessionUpdateManyMutationInput, ConversationSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationSessions to update
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * Limit how many ConversationSessions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationSession upsert
+   */
+  export type ConversationSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversationSession to update in case it exists.
+     */
+    where: ConversationSessionWhereUniqueInput
+    /**
+     * In case the ConversationSession found by the `where` argument doesn't exist, create a new ConversationSession with this data.
+     */
+    create: XOR<ConversationSessionCreateInput, ConversationSessionUncheckedCreateInput>
+    /**
+     * In case the ConversationSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversationSessionUpdateInput, ConversationSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversationSession delete
+   */
+  export type ConversationSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+    /**
+     * Filter which ConversationSession to delete.
+     */
+    where: ConversationSessionWhereUniqueInput
+  }
+
+  /**
+   * ConversationSession deleteMany
+   */
+  export type ConversationSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationSessions to delete
+     */
+    where?: ConversationSessionWhereInput
+    /**
+     * Limit how many ConversationSessions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationSession.logs
+   */
+  export type ConversationSession$logsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    where?: ConversationLogWhereInput
+    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
+    cursor?: ConversationLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationSession without action
+   */
+  export type ConversationSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationSession
+     */
+    select?: ConversationSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationSession
+     */
+    omit?: ConversationSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConversationLog
+   */
+
+  export type AggregateConversationLog = {
+    _count: ConversationLogCountAggregateOutputType | null
+    _avg: ConversationLogAvgAggregateOutputType | null
+    _sum: ConversationLogSumAggregateOutputType | null
+    _min: ConversationLogMinAggregateOutputType | null
+    _max: ConversationLogMaxAggregateOutputType | null
+  }
+
+  export type ConversationLogAvgAggregateOutputType = {
+    durationMs: number | null
+  }
+
+  export type ConversationLogSumAggregateOutputType = {
+    durationMs: number | null
+  }
+
+  export type ConversationLogMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    type: $Enums.LogType | null
+    toolName: string | null
+    policyDecision: string | null
+    policyRuleId: string | null
+    policyReason: string | null
+    durationMs: number | null
+    createdAt: Date | null
+  }
+
+  export type ConversationLogMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    type: $Enums.LogType | null
+    toolName: string | null
+    policyDecision: string | null
+    policyRuleId: string | null
+    policyReason: string | null
+    durationMs: number | null
+    createdAt: Date | null
+  }
+
+  export type ConversationLogCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    type: number
+    toolName: number
+    args: number
+    result: number
+    policyDecision: number
+    policyRuleId: number
+    policyReason: number
+    durationMs: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ConversationLogAvgAggregateInputType = {
+    durationMs?: true
+  }
+
+  export type ConversationLogSumAggregateInputType = {
+    durationMs?: true
+  }
+
+  export type ConversationLogMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    type?: true
+    toolName?: true
+    policyDecision?: true
+    policyRuleId?: true
+    policyReason?: true
+    durationMs?: true
+    createdAt?: true
+  }
+
+  export type ConversationLogMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    type?: true
+    toolName?: true
+    policyDecision?: true
+    policyRuleId?: true
+    policyReason?: true
+    durationMs?: true
+    createdAt?: true
+  }
+
+  export type ConversationLogCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    type?: true
+    toolName?: true
+    args?: true
+    result?: true
+    policyDecision?: true
+    policyRuleId?: true
+    policyReason?: true
+    durationMs?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ConversationLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationLog to aggregate.
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationLogs to fetch.
+     */
+    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConversationLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConversationLogs
+    **/
+    _count?: true | ConversationLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ConversationLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ConversationLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConversationLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConversationLogMaxAggregateInputType
+  }
+
+  export type GetConversationLogAggregateType<T extends ConversationLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateConversationLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConversationLog[P]>
+      : GetScalarType<T[P], AggregateConversationLog[P]>
+  }
+
+
+
+
+  export type ConversationLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConversationLogWhereInput
+    orderBy?: ConversationLogOrderByWithAggregationInput | ConversationLogOrderByWithAggregationInput[]
+    by: ConversationLogScalarFieldEnum[] | ConversationLogScalarFieldEnum
+    having?: ConversationLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConversationLogCountAggregateInputType | true
+    _avg?: ConversationLogAvgAggregateInputType
+    _sum?: ConversationLogSumAggregateInputType
+    _min?: ConversationLogMinAggregateInputType
+    _max?: ConversationLogMaxAggregateInputType
+  }
+
+  export type ConversationLogGroupByOutputType = {
+    id: string
+    sessionId: string
+    type: $Enums.LogType
+    toolName: string | null
+    args: JsonValue | null
+    result: JsonValue | null
+    policyDecision: string | null
+    policyRuleId: string | null
+    policyReason: string | null
+    durationMs: number | null
+    createdAt: Date
+    _count: ConversationLogCountAggregateOutputType | null
+    _avg: ConversationLogAvgAggregateOutputType | null
+    _sum: ConversationLogSumAggregateOutputType | null
+    _min: ConversationLogMinAggregateOutputType | null
+    _max: ConversationLogMaxAggregateOutputType | null
+  }
+
+  type GetConversationLogGroupByPayload<T extends ConversationLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConversationLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConversationLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConversationLogGroupByOutputType[P]>
+            : GetScalarType<T[P], ConversationLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConversationLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    type?: boolean
+    toolName?: boolean
+    args?: boolean
+    result?: boolean
+    policyDecision?: boolean
+    policyRuleId?: boolean
+    policyReason?: boolean
+    durationMs?: boolean
+    createdAt?: boolean
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationLog"]>
+
+  export type ConversationLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    type?: boolean
+    toolName?: boolean
+    args?: boolean
+    result?: boolean
+    policyDecision?: boolean
+    policyRuleId?: boolean
+    policyReason?: boolean
+    durationMs?: boolean
+    createdAt?: boolean
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationLog"]>
+
+  export type ConversationLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    type?: boolean
+    toolName?: boolean
+    args?: boolean
+    result?: boolean
+    policyDecision?: boolean
+    policyRuleId?: boolean
+    policyReason?: boolean
+    durationMs?: boolean
+    createdAt?: boolean
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["conversationLog"]>
+
+  export type ConversationLogSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    type?: boolean
+    toolName?: boolean
+    args?: boolean
+    result?: boolean
+    policyDecision?: boolean
+    policyRuleId?: boolean
+    policyReason?: boolean
+    durationMs?: boolean
+    createdAt?: boolean
+  }
+
+  export type ConversationLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sessionId" | "type" | "toolName" | "args" | "result" | "policyDecision" | "policyRuleId" | "policyReason" | "durationMs" | "createdAt", ExtArgs["result"]["conversationLog"]>
+  export type ConversationLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }
+  export type ConversationLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }
+  export type ConversationLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | ConversationSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $ConversationLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConversationLog"
+    objects: {
+      session: Prisma.$ConversationSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      type: $Enums.LogType
+      toolName: string | null
+      args: Prisma.JsonValue | null
+      result: Prisma.JsonValue | null
+      policyDecision: string | null
+      policyRuleId: string | null
+      policyReason: string | null
+      durationMs: number | null
+      createdAt: Date
+    }, ExtArgs["result"]["conversationLog"]>
+    composites: {}
+  }
+
+  type ConversationLogGetPayload<S extends boolean | null | undefined | ConversationLogDefaultArgs> = $Result.GetResult<Prisma.$ConversationLogPayload, S>
+
+  type ConversationLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConversationLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ConversationLogCountAggregateInputType | true
+    }
+
+  export interface ConversationLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConversationLog'], meta: { name: 'ConversationLog' } }
+    /**
+     * Find zero or one ConversationLog that matches the filter.
+     * @param {ConversationLogFindUniqueArgs} args - Arguments to find a ConversationLog
+     * @example
+     * // Get one ConversationLog
+     * const conversationLog = await prisma.conversationLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConversationLogFindUniqueArgs>(args: SelectSubset<T, ConversationLogFindUniqueArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConversationLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConversationLogFindUniqueOrThrowArgs} args - Arguments to find a ConversationLog
+     * @example
+     * // Get one ConversationLog
+     * const conversationLog = await prisma.conversationLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConversationLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ConversationLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogFindFirstArgs} args - Arguments to find a ConversationLog
+     * @example
+     * // Get one ConversationLog
+     * const conversationLog = await prisma.conversationLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConversationLogFindFirstArgs>(args?: SelectSubset<T, ConversationLogFindFirstArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConversationLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogFindFirstOrThrowArgs} args - Arguments to find a ConversationLog
+     * @example
+     * // Get one ConversationLog
+     * const conversationLog = await prisma.conversationLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConversationLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ConversationLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConversationLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConversationLogs
+     * const conversationLogs = await prisma.conversationLog.findMany()
+     * 
+     * // Get first 10 ConversationLogs
+     * const conversationLogs = await prisma.conversationLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const conversationLogWithIdOnly = await prisma.conversationLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConversationLogFindManyArgs>(args?: SelectSubset<T, ConversationLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConversationLog.
+     * @param {ConversationLogCreateArgs} args - Arguments to create a ConversationLog.
+     * @example
+     * // Create one ConversationLog
+     * const ConversationLog = await prisma.conversationLog.create({
+     *   data: {
+     *     // ... data to create a ConversationLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConversationLogCreateArgs>(args: SelectSubset<T, ConversationLogCreateArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConversationLogs.
+     * @param {ConversationLogCreateManyArgs} args - Arguments to create many ConversationLogs.
+     * @example
+     * // Create many ConversationLogs
+     * const conversationLog = await prisma.conversationLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConversationLogCreateManyArgs>(args?: SelectSubset<T, ConversationLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConversationLogs and returns the data saved in the database.
+     * @param {ConversationLogCreateManyAndReturnArgs} args - Arguments to create many ConversationLogs.
+     * @example
+     * // Create many ConversationLogs
+     * const conversationLog = await prisma.conversationLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConversationLogs and only return the `id`
+     * const conversationLogWithIdOnly = await prisma.conversationLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConversationLogCreateManyAndReturnArgs>(args?: SelectSubset<T, ConversationLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConversationLog.
+     * @param {ConversationLogDeleteArgs} args - Arguments to delete one ConversationLog.
+     * @example
+     * // Delete one ConversationLog
+     * const ConversationLog = await prisma.conversationLog.delete({
+     *   where: {
+     *     // ... filter to delete one ConversationLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConversationLogDeleteArgs>(args: SelectSubset<T, ConversationLogDeleteArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConversationLog.
+     * @param {ConversationLogUpdateArgs} args - Arguments to update one ConversationLog.
+     * @example
+     * // Update one ConversationLog
+     * const conversationLog = await prisma.conversationLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConversationLogUpdateArgs>(args: SelectSubset<T, ConversationLogUpdateArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConversationLogs.
+     * @param {ConversationLogDeleteManyArgs} args - Arguments to filter ConversationLogs to delete.
+     * @example
+     * // Delete a few ConversationLogs
+     * const { count } = await prisma.conversationLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConversationLogDeleteManyArgs>(args?: SelectSubset<T, ConversationLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConversationLogs
+     * const conversationLog = await prisma.conversationLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConversationLogUpdateManyArgs>(args: SelectSubset<T, ConversationLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConversationLogs and returns the data updated in the database.
+     * @param {ConversationLogUpdateManyAndReturnArgs} args - Arguments to update many ConversationLogs.
+     * @example
+     * // Update many ConversationLogs
+     * const conversationLog = await prisma.conversationLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConversationLogs and only return the `id`
+     * const conversationLogWithIdOnly = await prisma.conversationLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConversationLogUpdateManyAndReturnArgs>(args: SelectSubset<T, ConversationLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConversationLog.
+     * @param {ConversationLogUpsertArgs} args - Arguments to update or create a ConversationLog.
+     * @example
+     * // Update or create a ConversationLog
+     * const conversationLog = await prisma.conversationLog.upsert({
+     *   create: {
+     *     // ... data to create a ConversationLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConversationLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConversationLogUpsertArgs>(args: SelectSubset<T, ConversationLogUpsertArgs<ExtArgs>>): Prisma__ConversationLogClient<$Result.GetResult<Prisma.$ConversationLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConversationLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogCountArgs} args - Arguments to filter ConversationLogs to count.
+     * @example
+     * // Count the number of ConversationLogs
+     * const count = await prisma.conversationLog.count({
+     *   where: {
+     *     // ... the filter for the ConversationLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConversationLogCountArgs>(
+      args?: Subset<T, ConversationLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConversationLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConversationLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConversationLogAggregateArgs>(args: Subset<T, ConversationLogAggregateArgs>): Prisma.PrismaPromise<GetConversationLogAggregateType<T>>
+
+    /**
+     * Group by ConversationLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConversationLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConversationLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConversationLogGroupByArgs['orderBy'] }
+        : { orderBy?: ConversationLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConversationLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConversationLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConversationLog model
+   */
+  readonly fields: ConversationLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConversationLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConversationLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends ConversationSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ConversationSessionDefaultArgs<ExtArgs>>): Prisma__ConversationSessionClient<$Result.GetResult<Prisma.$ConversationSessionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConversationLog model
+   */
+  interface ConversationLogFieldRefs {
+    readonly id: FieldRef<"ConversationLog", 'String'>
+    readonly sessionId: FieldRef<"ConversationLog", 'String'>
+    readonly type: FieldRef<"ConversationLog", 'LogType'>
+    readonly toolName: FieldRef<"ConversationLog", 'String'>
+    readonly args: FieldRef<"ConversationLog", 'Json'>
+    readonly result: FieldRef<"ConversationLog", 'Json'>
+    readonly policyDecision: FieldRef<"ConversationLog", 'String'>
+    readonly policyRuleId: FieldRef<"ConversationLog", 'String'>
+    readonly policyReason: FieldRef<"ConversationLog", 'String'>
+    readonly durationMs: FieldRef<"ConversationLog", 'Int'>
+    readonly createdAt: FieldRef<"ConversationLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConversationLog findUnique
+   */
+  export type ConversationLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationLog to fetch.
+     */
+    where: ConversationLogWhereUniqueInput
+  }
+
+  /**
+   * ConversationLog findUniqueOrThrow
+   */
+  export type ConversationLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationLog to fetch.
+     */
+    where: ConversationLogWhereUniqueInput
+  }
+
+  /**
+   * ConversationLog findFirst
+   */
+  export type ConversationLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationLog to fetch.
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationLogs to fetch.
+     */
+    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationLogs.
+     */
+    cursor?: ConversationLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationLogs.
+     */
+    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationLog findFirstOrThrow
+   */
+  export type ConversationLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationLog to fetch.
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationLogs to fetch.
+     */
+    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConversationLogs.
+     */
+    cursor?: ConversationLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConversationLogs.
+     */
+    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationLog findMany
+   */
+  export type ConversationLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ConversationLogs to fetch.
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConversationLogs to fetch.
+     */
+    orderBy?: ConversationLogOrderByWithRelationInput | ConversationLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConversationLogs.
+     */
+    cursor?: ConversationLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConversationLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConversationLogs.
+     */
+    skip?: number
+    distinct?: ConversationLogScalarFieldEnum | ConversationLogScalarFieldEnum[]
+  }
+
+  /**
+   * ConversationLog create
+   */
+  export type ConversationLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ConversationLog.
+     */
+    data: XOR<ConversationLogCreateInput, ConversationLogUncheckedCreateInput>
+  }
+
+  /**
+   * ConversationLog createMany
+   */
+  export type ConversationLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConversationLogs.
+     */
+    data: ConversationLogCreateManyInput | ConversationLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConversationLog createManyAndReturn
+   */
+  export type ConversationLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConversationLogs.
+     */
+    data: ConversationLogCreateManyInput | ConversationLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationLog update
+   */
+  export type ConversationLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ConversationLog.
+     */
+    data: XOR<ConversationLogUpdateInput, ConversationLogUncheckedUpdateInput>
+    /**
+     * Choose, which ConversationLog to update.
+     */
+    where: ConversationLogWhereUniqueInput
+  }
+
+  /**
+   * ConversationLog updateMany
+   */
+  export type ConversationLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConversationLogs.
+     */
+    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationLogs to update
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * Limit how many ConversationLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationLog updateManyAndReturn
+   */
+  export type ConversationLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * The data used to update ConversationLogs.
+     */
+    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyInput>
+    /**
+     * Filter which ConversationLogs to update
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * Limit how many ConversationLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ConversationLog upsert
+   */
+  export type ConversationLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ConversationLog to update in case it exists.
+     */
+    where: ConversationLogWhereUniqueInput
+    /**
+     * In case the ConversationLog found by the `where` argument doesn't exist, create a new ConversationLog with this data.
+     */
+    create: XOR<ConversationLogCreateInput, ConversationLogUncheckedCreateInput>
+    /**
+     * In case the ConversationLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConversationLogUpdateInput, ConversationLogUncheckedUpdateInput>
+  }
+
+  /**
+   * ConversationLog delete
+   */
+  export type ConversationLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+    /**
+     * Filter which ConversationLog to delete.
+     */
+    where: ConversationLogWhereUniqueInput
+  }
+
+  /**
+   * ConversationLog deleteMany
+   */
+  export type ConversationLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConversationLogs to delete
+     */
+    where?: ConversationLogWhereInput
+    /**
+     * Limit how many ConversationLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConversationLog without action
+   */
+  export type ConversationLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConversationLog
+     */
+    select?: ConversationLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConversationLog
+     */
+    omit?: ConversationLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ConversationLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -4565,6 +7109,37 @@ export namespace Prisma {
   export type MoveScalarFieldEnum = (typeof MoveScalarFieldEnum)[keyof typeof MoveScalarFieldEnum]
 
 
+  export const ConversationSessionScalarFieldEnum: {
+    id: 'id',
+    endpoint: 'endpoint',
+    gameId: 'gameId',
+    startedAt: 'startedAt',
+    endedAt: 'endedAt',
+    totalTokens: 'totalTokens',
+    promptTokens: 'promptTokens',
+    completionTokens: 'completionTokens'
+  };
+
+  export type ConversationSessionScalarFieldEnum = (typeof ConversationSessionScalarFieldEnum)[keyof typeof ConversationSessionScalarFieldEnum]
+
+
+  export const ConversationLogScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    type: 'type',
+    toolName: 'toolName',
+    args: 'args',
+    result: 'result',
+    policyDecision: 'policyDecision',
+    policyRuleId: 'policyRuleId',
+    policyReason: 'policyReason',
+    durationMs: 'durationMs',
+    createdAt: 'createdAt'
+  };
+
+  export type ConversationLogScalarFieldEnum = (typeof ConversationLogScalarFieldEnum)[keyof typeof ConversationLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -4573,12 +7148,37 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -4639,6 +7239,27 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'LogType'
+   */
+  export type EnumLogTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogType'>
+    
+
+
+  /**
+   * Reference to a field of type 'LogType[]'
+   */
+  export type ListEnumLogTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
 
 
@@ -4861,6 +7482,165 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Move"> | Date | string
   }
 
+  export type ConversationSessionWhereInput = {
+    AND?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
+    OR?: ConversationSessionWhereInput[]
+    NOT?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
+    id?: StringFilter<"ConversationSession"> | string
+    endpoint?: StringFilter<"ConversationSession"> | string
+    gameId?: StringNullableFilter<"ConversationSession"> | string | null
+    startedAt?: DateTimeFilter<"ConversationSession"> | Date | string
+    endedAt?: DateTimeNullableFilter<"ConversationSession"> | Date | string | null
+    totalTokens?: IntFilter<"ConversationSession"> | number
+    promptTokens?: IntFilter<"ConversationSession"> | number
+    completionTokens?: IntFilter<"ConversationSession"> | number
+    logs?: ConversationLogListRelationFilter
+  }
+
+  export type ConversationSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    endpoint?: SortOrder
+    gameId?: SortOrderInput | SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+    logs?: ConversationLogOrderByRelationAggregateInput
+  }
+
+  export type ConversationSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
+    OR?: ConversationSessionWhereInput[]
+    NOT?: ConversationSessionWhereInput | ConversationSessionWhereInput[]
+    endpoint?: StringFilter<"ConversationSession"> | string
+    gameId?: StringNullableFilter<"ConversationSession"> | string | null
+    startedAt?: DateTimeFilter<"ConversationSession"> | Date | string
+    endedAt?: DateTimeNullableFilter<"ConversationSession"> | Date | string | null
+    totalTokens?: IntFilter<"ConversationSession"> | number
+    promptTokens?: IntFilter<"ConversationSession"> | number
+    completionTokens?: IntFilter<"ConversationSession"> | number
+    logs?: ConversationLogListRelationFilter
+  }, "id">
+
+  export type ConversationSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    endpoint?: SortOrder
+    gameId?: SortOrderInput | SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+    _count?: ConversationSessionCountOrderByAggregateInput
+    _avg?: ConversationSessionAvgOrderByAggregateInput
+    _max?: ConversationSessionMaxOrderByAggregateInput
+    _min?: ConversationSessionMinOrderByAggregateInput
+    _sum?: ConversationSessionSumOrderByAggregateInput
+  }
+
+  export type ConversationSessionScalarWhereWithAggregatesInput = {
+    AND?: ConversationSessionScalarWhereWithAggregatesInput | ConversationSessionScalarWhereWithAggregatesInput[]
+    OR?: ConversationSessionScalarWhereWithAggregatesInput[]
+    NOT?: ConversationSessionScalarWhereWithAggregatesInput | ConversationSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversationSession"> | string
+    endpoint?: StringWithAggregatesFilter<"ConversationSession"> | string
+    gameId?: StringNullableWithAggregatesFilter<"ConversationSession"> | string | null
+    startedAt?: DateTimeWithAggregatesFilter<"ConversationSession"> | Date | string
+    endedAt?: DateTimeNullableWithAggregatesFilter<"ConversationSession"> | Date | string | null
+    totalTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
+    promptTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
+    completionTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
+  }
+
+  export type ConversationLogWhereInput = {
+    AND?: ConversationLogWhereInput | ConversationLogWhereInput[]
+    OR?: ConversationLogWhereInput[]
+    NOT?: ConversationLogWhereInput | ConversationLogWhereInput[]
+    id?: StringFilter<"ConversationLog"> | string
+    sessionId?: StringFilter<"ConversationLog"> | string
+    type?: EnumLogTypeFilter<"ConversationLog"> | $Enums.LogType
+    toolName?: StringNullableFilter<"ConversationLog"> | string | null
+    args?: JsonNullableFilter<"ConversationLog">
+    result?: JsonNullableFilter<"ConversationLog">
+    policyDecision?: StringNullableFilter<"ConversationLog"> | string | null
+    policyRuleId?: StringNullableFilter<"ConversationLog"> | string | null
+    policyReason?: StringNullableFilter<"ConversationLog"> | string | null
+    durationMs?: IntNullableFilter<"ConversationLog"> | number | null
+    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
+    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
+  }
+
+  export type ConversationLogOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    type?: SortOrder
+    toolName?: SortOrderInput | SortOrder
+    args?: SortOrderInput | SortOrder
+    result?: SortOrderInput | SortOrder
+    policyDecision?: SortOrderInput | SortOrder
+    policyRuleId?: SortOrderInput | SortOrder
+    policyReason?: SortOrderInput | SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    session?: ConversationSessionOrderByWithRelationInput
+  }
+
+  export type ConversationLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ConversationLogWhereInput | ConversationLogWhereInput[]
+    OR?: ConversationLogWhereInput[]
+    NOT?: ConversationLogWhereInput | ConversationLogWhereInput[]
+    sessionId?: StringFilter<"ConversationLog"> | string
+    type?: EnumLogTypeFilter<"ConversationLog"> | $Enums.LogType
+    toolName?: StringNullableFilter<"ConversationLog"> | string | null
+    args?: JsonNullableFilter<"ConversationLog">
+    result?: JsonNullableFilter<"ConversationLog">
+    policyDecision?: StringNullableFilter<"ConversationLog"> | string | null
+    policyRuleId?: StringNullableFilter<"ConversationLog"> | string | null
+    policyReason?: StringNullableFilter<"ConversationLog"> | string | null
+    durationMs?: IntNullableFilter<"ConversationLog"> | number | null
+    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
+    session?: XOR<ConversationSessionScalarRelationFilter, ConversationSessionWhereInput>
+  }, "id">
+
+  export type ConversationLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    type?: SortOrder
+    toolName?: SortOrderInput | SortOrder
+    args?: SortOrderInput | SortOrder
+    result?: SortOrderInput | SortOrder
+    policyDecision?: SortOrderInput | SortOrder
+    policyRuleId?: SortOrderInput | SortOrder
+    policyReason?: SortOrderInput | SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ConversationLogCountOrderByAggregateInput
+    _avg?: ConversationLogAvgOrderByAggregateInput
+    _max?: ConversationLogMaxOrderByAggregateInput
+    _min?: ConversationLogMinOrderByAggregateInput
+    _sum?: ConversationLogSumOrderByAggregateInput
+  }
+
+  export type ConversationLogScalarWhereWithAggregatesInput = {
+    AND?: ConversationLogScalarWhereWithAggregatesInput | ConversationLogScalarWhereWithAggregatesInput[]
+    OR?: ConversationLogScalarWhereWithAggregatesInput[]
+    NOT?: ConversationLogScalarWhereWithAggregatesInput | ConversationLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConversationLog"> | string
+    sessionId?: StringWithAggregatesFilter<"ConversationLog"> | string
+    type?: EnumLogTypeWithAggregatesFilter<"ConversationLog"> | $Enums.LogType
+    toolName?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
+    args?: JsonNullableWithAggregatesFilter<"ConversationLog">
+    result?: JsonNullableWithAggregatesFilter<"ConversationLog">
+    policyDecision?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
+    policyRuleId?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
+    policyReason?: StringNullableWithAggregatesFilter<"ConversationLog"> | string | null
+    durationMs?: IntNullableWithAggregatesFilter<"ConversationLog"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"ConversationLog"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     username: string
@@ -5066,6 +7846,184 @@ export namespace Prisma {
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     moveNo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationSessionCreateInput = {
+    id?: string
+    endpoint: string
+    gameId?: string | null
+    startedAt?: Date | string
+    endedAt?: Date | string | null
+    totalTokens?: number
+    promptTokens?: number
+    completionTokens?: number
+    logs?: ConversationLogCreateNestedManyWithoutSessionInput
+  }
+
+  export type ConversationSessionUncheckedCreateInput = {
+    id?: string
+    endpoint: string
+    gameId?: string | null
+    startedAt?: Date | string
+    endedAt?: Date | string | null
+    totalTokens?: number
+    promptTokens?: number
+    completionTokens?: number
+    logs?: ConversationLogUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type ConversationSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+    logs?: ConversationLogUpdateManyWithoutSessionNestedInput
+  }
+
+  export type ConversationSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+    logs?: ConversationLogUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type ConversationSessionCreateManyInput = {
+    id?: string
+    endpoint: string
+    gameId?: string | null
+    startedAt?: Date | string
+    endedAt?: Date | string | null
+    totalTokens?: number
+    promptTokens?: number
+    completionTokens?: number
+  }
+
+  export type ConversationSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ConversationSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ConversationLogCreateInput = {
+    id?: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+    session: ConversationSessionCreateNestedOneWithoutLogsInput
+  }
+
+  export type ConversationLogUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type ConversationLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: ConversationSessionUpdateOneRequiredWithoutLogsNestedInput
+  }
+
+  export type ConversationLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationLogCreateManyInput = {
+    id?: string
+    sessionId: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type ConversationLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5291,6 +8249,266 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type ConversationLogListRelationFilter = {
+    every?: ConversationLogWhereInput
+    some?: ConversationLogWhereInput
+    none?: ConversationLogWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
+  export type ConversationLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ConversationSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    endpoint?: SortOrder
+    gameId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+  }
+
+  export type ConversationSessionAvgOrderByAggregateInput = {
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+  }
+
+  export type ConversationSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    endpoint?: SortOrder
+    gameId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+  }
+
+  export type ConversationSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    endpoint?: SortOrder
+    gameId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+  }
+
+  export type ConversationSessionSumOrderByAggregateInput = {
+    totalTokens?: SortOrder
+    promptTokens?: SortOrder
+    completionTokens?: SortOrder
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type EnumLogTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LogType | EnumLogTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLogTypeFilter<$PrismaModel> | $Enums.LogType
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ConversationSessionScalarRelationFilter = {
+    is?: ConversationSessionWhereInput
+    isNot?: ConversationSessionWhereInput
+  }
+
+  export type ConversationLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    type?: SortOrder
+    toolName?: SortOrder
+    args?: SortOrder
+    result?: SortOrder
+    policyDecision?: SortOrder
+    policyRuleId?: SortOrder
+    policyReason?: SortOrder
+    durationMs?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ConversationLogAvgOrderByAggregateInput = {
+    durationMs?: SortOrder
+  }
+
+  export type ConversationLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    type?: SortOrder
+    toolName?: SortOrder
+    policyDecision?: SortOrder
+    policyRuleId?: SortOrder
+    policyReason?: SortOrder
+    durationMs?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ConversationLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    type?: SortOrder
+    toolName?: SortOrder
+    policyDecision?: SortOrder
+    policyRuleId?: SortOrder
+    policyReason?: SortOrder
+    durationMs?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ConversationLogSumOrderByAggregateInput = {
+    durationMs?: SortOrder
+  }
+
+  export type EnumLogTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LogType | EnumLogTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLogTypeWithAggregatesFilter<$PrismaModel> | $Enums.LogType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLogTypeFilter<$PrismaModel>
+    _max?: NestedEnumLogTypeFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type GameCreateNestedManyWithoutPlayer1Input = {
@@ -5537,6 +8755,82 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutMovesInput, UserUpdateWithoutMovesInput>, UserUncheckedUpdateWithoutMovesInput>
   }
 
+  export type ConversationLogCreateNestedManyWithoutSessionInput = {
+    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
+    createMany?: ConversationLogCreateManySessionInputEnvelope
+    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+  }
+
+  export type ConversationLogUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
+    createMany?: ConversationLogCreateManySessionInputEnvelope
+    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type ConversationLogUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
+    upsert?: ConversationLogUpsertWithWhereUniqueWithoutSessionInput | ConversationLogUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: ConversationLogCreateManySessionInputEnvelope
+    set?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    disconnect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    delete?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    update?: ConversationLogUpdateWithWhereUniqueWithoutSessionInput | ConversationLogUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: ConversationLogUpdateManyWithWhereWithoutSessionInput | ConversationLogUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
+  }
+
+  export type ConversationLogUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
+    upsert?: ConversationLogUpsertWithWhereUniqueWithoutSessionInput | ConversationLogUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: ConversationLogCreateManySessionInputEnvelope
+    set?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    disconnect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    delete?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    connect?: ConversationLogWhereUniqueInput | ConversationLogWhereUniqueInput[]
+    update?: ConversationLogUpdateWithWhereUniqueWithoutSessionInput | ConversationLogUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: ConversationLogUpdateManyWithWhereWithoutSessionInput | ConversationLogUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
+  }
+
+  export type ConversationSessionCreateNestedOneWithoutLogsInput = {
+    create?: XOR<ConversationSessionCreateWithoutLogsInput, ConversationSessionUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: ConversationSessionCreateOrConnectWithoutLogsInput
+    connect?: ConversationSessionWhereUniqueInput
+  }
+
+  export type EnumLogTypeFieldUpdateOperationsInput = {
+    set?: $Enums.LogType
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type ConversationSessionUpdateOneRequiredWithoutLogsNestedInput = {
+    create?: XOR<ConversationSessionCreateWithoutLogsInput, ConversationSessionUncheckedCreateWithoutLogsInput>
+    connectOrCreate?: ConversationSessionCreateOrConnectWithoutLogsInput
+    upsert?: ConversationSessionUpsertWithoutLogsInput
+    connect?: ConversationSessionWhereUniqueInput
+    update?: XOR<XOR<ConversationSessionUpdateToOneWithWhereWithoutLogsInput, ConversationSessionUpdateWithoutLogsInput>, ConversationSessionUncheckedUpdateWithoutLogsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -5646,6 +8940,139 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumLogTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.LogType | EnumLogTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLogTypeFilter<$PrismaModel> | $Enums.LogType
+  }
+
+  export type NestedEnumLogTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.LogType | EnumLogTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.LogType[] | ListEnumLogTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumLogTypeWithAggregatesFilter<$PrismaModel> | $Enums.LogType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumLogTypeFilter<$PrismaModel>
+    _max?: NestedEnumLogTypeFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type GameCreateWithoutPlayer1Input = {
@@ -6078,6 +9505,135 @@ export namespace Prisma {
     gamesAsPlayer2?: GameUncheckedUpdateManyWithoutPlayer2NestedInput
   }
 
+  export type ConversationLogCreateWithoutSessionInput = {
+    id?: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type ConversationLogUncheckedCreateWithoutSessionInput = {
+    id?: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type ConversationLogCreateOrConnectWithoutSessionInput = {
+    where: ConversationLogWhereUniqueInput
+    create: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput>
+  }
+
+  export type ConversationLogCreateManySessionInputEnvelope = {
+    data: ConversationLogCreateManySessionInput | ConversationLogCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ConversationLogUpsertWithWhereUniqueWithoutSessionInput = {
+    where: ConversationLogWhereUniqueInput
+    update: XOR<ConversationLogUpdateWithoutSessionInput, ConversationLogUncheckedUpdateWithoutSessionInput>
+    create: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput>
+  }
+
+  export type ConversationLogUpdateWithWhereUniqueWithoutSessionInput = {
+    where: ConversationLogWhereUniqueInput
+    data: XOR<ConversationLogUpdateWithoutSessionInput, ConversationLogUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type ConversationLogUpdateManyWithWhereWithoutSessionInput = {
+    where: ConversationLogScalarWhereInput
+    data: XOR<ConversationLogUpdateManyMutationInput, ConversationLogUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type ConversationLogScalarWhereInput = {
+    AND?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
+    OR?: ConversationLogScalarWhereInput[]
+    NOT?: ConversationLogScalarWhereInput | ConversationLogScalarWhereInput[]
+    id?: StringFilter<"ConversationLog"> | string
+    sessionId?: StringFilter<"ConversationLog"> | string
+    type?: EnumLogTypeFilter<"ConversationLog"> | $Enums.LogType
+    toolName?: StringNullableFilter<"ConversationLog"> | string | null
+    args?: JsonNullableFilter<"ConversationLog">
+    result?: JsonNullableFilter<"ConversationLog">
+    policyDecision?: StringNullableFilter<"ConversationLog"> | string | null
+    policyRuleId?: StringNullableFilter<"ConversationLog"> | string | null
+    policyReason?: StringNullableFilter<"ConversationLog"> | string | null
+    durationMs?: IntNullableFilter<"ConversationLog"> | number | null
+    createdAt?: DateTimeFilter<"ConversationLog"> | Date | string
+  }
+
+  export type ConversationSessionCreateWithoutLogsInput = {
+    id?: string
+    endpoint: string
+    gameId?: string | null
+    startedAt?: Date | string
+    endedAt?: Date | string | null
+    totalTokens?: number
+    promptTokens?: number
+    completionTokens?: number
+  }
+
+  export type ConversationSessionUncheckedCreateWithoutLogsInput = {
+    id?: string
+    endpoint: string
+    gameId?: string | null
+    startedAt?: Date | string
+    endedAt?: Date | string | null
+    totalTokens?: number
+    promptTokens?: number
+    completionTokens?: number
+  }
+
+  export type ConversationSessionCreateOrConnectWithoutLogsInput = {
+    where: ConversationSessionWhereUniqueInput
+    create: XOR<ConversationSessionCreateWithoutLogsInput, ConversationSessionUncheckedCreateWithoutLogsInput>
+  }
+
+  export type ConversationSessionUpsertWithoutLogsInput = {
+    update: XOR<ConversationSessionUpdateWithoutLogsInput, ConversationSessionUncheckedUpdateWithoutLogsInput>
+    create: XOR<ConversationSessionCreateWithoutLogsInput, ConversationSessionUncheckedCreateWithoutLogsInput>
+    where?: ConversationSessionWhereInput
+  }
+
+  export type ConversationSessionUpdateToOneWithWhereWithoutLogsInput = {
+    where?: ConversationSessionWhereInput
+    data: XOR<ConversationSessionUpdateWithoutLogsInput, ConversationSessionUncheckedUpdateWithoutLogsInput>
+  }
+
+  export type ConversationSessionUpdateWithoutLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ConversationSessionUncheckedUpdateWithoutLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    endpoint?: StringFieldUpdateOperationsInput | string
+    gameId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    totalTokens?: IntFieldUpdateOperationsInput | number
+    promptTokens?: IntFieldUpdateOperationsInput | number
+    completionTokens?: IntFieldUpdateOperationsInput | number
+  }
+
   export type GameCreateManyPlayer1Input = {
     id?: string
     player2Id: string
@@ -6223,6 +9779,58 @@ export namespace Prisma {
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     moveNo?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationLogCreateManySessionInput = {
+    id?: string
+    type: $Enums.LogType
+    toolName?: string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: string | null
+    policyRuleId?: string | null
+    policyReason?: string | null
+    durationMs?: number | null
+    createdAt?: Date | string
+  }
+
+  export type ConversationLogUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationLogUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConversationLogUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumLogTypeFieldUpdateOperationsInput | $Enums.LogType
+    toolName?: NullableStringFieldUpdateOperationsInput | string | null
+    args?: NullableJsonNullValueInput | InputJsonValue
+    result?: NullableJsonNullValueInput | InputJsonValue
+    policyDecision?: NullableStringFieldUpdateOperationsInput | string | null
+    policyRuleId?: NullableStringFieldUpdateOperationsInput | string | null
+    policyReason?: NullableStringFieldUpdateOperationsInput | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
