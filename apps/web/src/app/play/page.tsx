@@ -5,12 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
   Clock,
-  Zap,
-  Target,
   Swords,
   RotateCcw,
   ChevronRight,
-  Crown,
   X,
   Users,
   Bot,
@@ -20,8 +17,6 @@ import { useChessStore } from "@/app/store/chess-game-state";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/app/socket-provider";
 import { LoadingSpinner } from "@/app/play/loading-spinner";
-import { useSession } from "next-auth/react";
-import { BACKEND_URL } from "@/config";
 
 const SearchingDots = () => (
   <div className="flex gap-1">
@@ -51,12 +46,9 @@ export default function PlayPage() {
   const router = useRouter();
   const { socket, status: socketStatus } = useSocket();
   const startNewGame = useChessStore((state) => state.startNewGame);
-  const startAiGame = useChessStore((state) => state.startAiGame);
-  const { data: session } = useSession();
 
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [searchTime, setSearchTime] = useState(0);
-  const [aiLoading, setAiLoading] = useState(false);
 
   // Disconnect card state
   const [showDisconnectCard, setShowDisconnectCard] = useState(false);
@@ -114,28 +106,6 @@ export default function PlayPage() {
   const handleCancel = () => {
     setGameStatus('idle');
     setSearchTime(0);
-  };
-
-  const handlePlayVsAi = async () => {
-    if (!session?.user?.id) return;
-    setAiLoading(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/games/create-vs-ai`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: session.user.id }),
-      });
-      const data = await res.json();
-      if (!data.gameId) throw new Error("No gameId returned");
-
-      startAiGame(data.gameId);
-      sessionStorage.setItem("activeGameId", data.gameId);
-      router.push(`/play/${data.gameId}?ai=1`);
-    } catch (err) {
-      console.error("Failed to create AI game:", err);
-    } finally {
-      setAiLoading(false);
-    }
   };
 
   const formatTime = (seconds: number) => {
@@ -284,55 +254,30 @@ export default function PlayPage() {
         </AnimatePresence>
       </div>
 
-      {/* Play vs AI */}
+      {/* Play vs AI — link to dedicated route */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="rounded-xl border border-[#222] bg-[#111] p-6"
+        className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-6"
       >
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-3">
           <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
             <Bot className="w-5 h-5 text-violet-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold">Play vs Claude AI</h2>
+            <h2 className="text-lg font-bold">Play with AI Coach</h2>
             <p className="text-sm text-white/40">Challenge Claude and get instant move explanations</p>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 rounded-lg border border-violet-500/20 bg-violet-500/5 p-4">
-            <p className="text-sm font-medium text-violet-300 mb-1">Live AI Opponent</p>
-            <p className="text-xs text-white/40">Claude explains every move it makes in real time</p>
-          </div>
-          <div className="flex-1 rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
-            <p className="text-sm font-medium text-blue-300 mb-1">Post-Game Analysis</p>
-            <p className="text-xs text-white/40">Get a full breakdown of blunders, mistakes & improvements</p>
-          </div>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handlePlayVsAi}
-          disabled={aiLoading || !session}
-          className="mt-4 w-full py-3 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
+        <Link
+          href="/ai-coach"
+          className="mt-2 w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
         >
-          {aiLoading ? (
-            <>
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full"
-              />
-              Setting up game...
-            </>
-          ) : (
-            <>
-              <Bot className="w-4 h-4" />
-              Play vs Claude
-            </>
-          )}
-        </motion.button>
+          <Bot className="w-4 h-4" />
+          Go to AI Coach
+          <ChevronRight className="w-4 h-4" />
+        </Link>
       </motion.div>
 
       {/* Recent Opponents */}
