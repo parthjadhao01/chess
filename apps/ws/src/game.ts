@@ -65,7 +65,7 @@ export class Game {
                 reason : "resignation"
             }
         }))
-        opponentPlayer.Websocket.send(JSON.stringify({
+        opponentPlayer.Websocket?.send(JSON.stringify({
             type : GAME_OVER,
             payload : {
                 message : "win",
@@ -109,21 +109,21 @@ export class Game {
         this.moveCount++;
     }
 
-    public async makeMoveById(move : {from : string, to : string},redis : any){
+    public async makeMoveById(move : {from : string, to : string}, redis : any, playerId?: string){
         try {
             this.applyMove(move);
         } catch (error) {
             return;
         }
         const payload = JSON.stringify({ type: MOVES, payload: move });
-        this.player1.Websocket.send(payload);
-        this.player2.Websocket.send(payload);
+        this.player1.Websocket?.send(payload);
+        this.player2.Websocket?.send(payload);
 
         await redis.lPush("moves",JSON.stringify({
             type : "move",
             gameId: this.GAME_ID,
             fen : this.board.fen(),
-            playerId: "mcp",
+            playerId: playerId ?? this.player2.playerId,
             from: move.from,
             to: move.to,
             moveNo: this.moveCount - 1
@@ -146,7 +146,7 @@ export class Game {
             return;
         }
 
-        opponent?.Websocket.send(JSON.stringify({
+        opponent?.Websocket?.send(JSON.stringify({
             type: MOVES,
             payload: move
         }));
@@ -172,7 +172,7 @@ export class Game {
                     }
                 }));
 
-                opponent.Websocket.send(JSON.stringify({
+                opponent.Websocket?.send(JSON.stringify({
                     type: GAME_OVER,
                     payload: {
                         message: "loss",
@@ -208,7 +208,7 @@ export class Game {
                     });
 
                     socket.send(drawPayload);
-                    opponent.Websocket.send(drawPayload);
+                    opponent.Websocket?.send(drawPayload);
                 }
             }
         }

@@ -2,18 +2,45 @@
 "use client"
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
 import MovesTable from "@/app/play/[gameId]/movesTable";
-import { useState, useEffect } from 'react';
+import { AiPanel } from "@/app/play/[gameId]/ai-panel";
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {useSocket} from "@/app/socket-provider";
-import {useParams} from "next/navigation";
+import {useParams, useSearchParams} from "next/navigation";
 import {useChessStore} from "@/app/store/chess-game-state";
+import { AGENT_URL } from "@/config";
 
 export default function GamePage() {
     const {gameId} = useParams<{gameId : string}>()
+    const searchParams = useSearchParams();
+    const isAiParam = searchParams.get("ai") === "1";
+
     const {socket,status} = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
-    const {reconnect} = useChessStore();
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+    const {
+        reconnect,
+        isAiGame,
+        startAiGame,
+        moves,
+        gameOver,
+        isAiThinking,
+        aiMoveExplanation,
+        gameAnalysis,
+        setAiMoveExplanation,
+        setIsAiThinking,
+        setGameAnalysis,
+    } = useChessStore();
+
+    // If URL has ?ai=1 but store was reset (e.g. page refresh), re-init AI game
+    useEffect(() => {
+        if (isAiParam && !isAiGame && gameId) {
+            startAiGame(gameId);
+        }
+    }, [isAiParam, isAiGame, gameId, startAiGame]);
+
+    // Reconnect WebSocket when connected
     useEffect(() => {
         if (status !== "connected") return
 
@@ -32,37 +59,84 @@ export default function GamePage() {
         }
 
         socket.addEventListener("message", handler)
-
         return () => socket.removeEventListener("message", handler)
-    }, [status, gameId, socket])
+    }, [status, gameId, socket, reconnect])
 
-    const handleResign = () => {
-        setShowResignConfirm(true);
+    // Trigger Claude's move when it's the AI's turn (after each human move)
+    const aiTriggerRef = useRef(false);
+    useEffect(() => {
+        if (!isAiGame) return;
+        if (gameOver) return;
+
+        // Human is white (player1) → moves 0, 2, 4... (even index moves were human)
+        // After human moves, moves.length is odd → it's AI's (black) turn
+        const isAiTurn = moves.length % 2 === 1;
+        if (!isAiTurn) return;
+        if (aiTriggerRef.current) return; // already triggered for this turn
+
+        aiTriggerRef.current = true;
+        setIsAiThinking(true);
+        setAiMoveExplanation(null);
+
+        fetch(`${AGENT_URL}/agent/play`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ gameId, playingAs: "black" }),
+        })
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.explanation) setAiMoveExplanation(data.explanation);
+            })
+            .catch((err) => console.error("Agent play error:", err))
+            .finally(() => {
+                setIsAiThinking(false);
+                aiTriggerRef.current = false;
+            });
+    }, [moves.length, isAiGame, gameOver, gameId, setIsAiThinking, setAiMoveExplanation]);
+
+    const handleAnalyze = async () => {
+        setIsAnalyzing(true);
+        try {
+            const res = await fetch(`${AGENT_URL}/agent/analyze`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ gameId }),
+            });
+            const data = await res.json();
+            if (data.analysis) setGameAnalysis(data.analysis);
+        } catch (err) {
+            console.error("Analysis error:", err);
+        } finally {
+            setIsAnalyzing(false);
+        }
     };
+
+    const handleResign = () => setShowResignConfirm(true);
 
     const confirmResign = () => {
         socket.send(JSON.stringify({
             type : "resign",
-            payload : {
-                gameId : gameId
-            }
+            payload : { gameId }
         }))
     };
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-
-            {/* Main Game Area */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    {/* Left: Chess Board Section */}
+                    {/* Left: Chess Board */}
                     <div className="lg:col-span-2">
                         {/* Opponent Info */}
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50 mb-2">
                             <div>
                                 <p className="text-xs text-muted-foreground">Opponent</p>
-                                <p className="text-lg font-semibold text-foreground">Alex_Chess</p>
+                                <p className="text-lg font-semibold text-foreground">
+                                    {isAiGame ? "Claude AI" : "Opponent"}
+                                </p>
                             </div>
+                            {isAiGame && isAiThinking && (
+                                <span className="text-xs text-violet-400 animate-pulse">Thinking...</span>
+                            )}
                         </div>
 
                         {/* Chess Board */}
@@ -74,15 +148,27 @@ export default function GamePage() {
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50">
                             <div>
                                 <p className="text-xs text-muted-foreground">You</p>
-                                <p className="text-lg font-semibold text-foreground">user-1</p>
+                                <p className="text-lg font-semibold text-foreground">You</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Right: Moves Table and Resign Button */}
+                    {/* Right: Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-4 space-y-3">
                             <MovesTable />
+
+                            {/* AI Panel — only in AI games */}
+                            {isAiGame && (
+                                <AiPanel
+                                    isThinking={isAiThinking}
+                                    explanation={aiMoveExplanation}
+                                    analysis={gameAnalysis}
+                                    onAnalyze={handleAnalyze}
+                                    isAnalyzing={isAnalyzing}
+                                    gameOver={gameOver}
+                                />
+                            )}
 
                             {/* Resign Button */}
                             <div>

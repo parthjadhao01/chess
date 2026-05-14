@@ -1,0 +1,30 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "description": "Chess AI Agent service using Claude",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "openai": "^4.98.0",
+    "@repo/db": "workspace:*",
+    "chess.js": "^1.4.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "tsx": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20",
+    "typescript": "^5.9.2"
+  }
+}
