@@ -5,14 +5,23 @@ import * as dotenv from "dotenv"
 import crypto from "crypto"
 import { Chess } from "chess.js"
 import {createClient} from "redis";
+import { policyRouter } from "./routes/policy.js";
 
 
 const app = express();
 dotenv.configDotenv()
 app.use(express.json());
+const ALLOWED_ORIGINS = [
+    process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    process.env.ADMIN_ORIGIN   || "http://localhost:3003",
+];
+
 app.use(cors({
-    credentials : true,
-    origin : process.env.FRONTEND_ORIGIN || "http://localhost:3000"
+    credentials: true,
+    origin: (origin, cb) => {
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) cb(null, true);
+        else cb(new Error("Not allowed by CORS"));
+    },
 }))
 
 const redis = createClient({url : process.env.REDIS_URL});
@@ -216,6 +225,7 @@ app.post("/",(req,res)=>{
 const PORT = process.env.PORT || 3001;
 
 redis.connect().then(() => {
+    app.use("/policy", policyRouter(redis));
     app.listen(PORT, () => {
         console.log(`Authentication-Server started on port ${PORT}`)
     })
