@@ -1,21 +1,18 @@
-// /play/[gameId]
-"use client"
+'use client';
+
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
 import MovesTable from "@/app/play/[gameId]/movesTable";
 import { AiPanel } from "@/app/play/[gameId]/ai-panel";
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import {useSocket} from "@/app/socket-provider";
-import {useParams, useSearchParams} from "next/navigation";
-import {useChessStore} from "@/app/store/chess-game-state";
+import { useSocket } from "@/app/socket-provider";
+import { useParams } from "next/navigation";
+import { useChessStore } from "@/app/store/chess-game-state";
 import { AGENT_URL } from "@/config";
 
-export default function GamePage() {
-    const {gameId} = useParams<{gameId : string}>()
-    const searchParams = useSearchParams();
-    const isAiParam = searchParams.get("ai") === "1";
-
-    const {socket,status} = useSocket();
+export default function AiCoachGamePage() {
+    const { gameId } = useParams<{ gameId: string }>();
+    const { socket, status } = useSocket();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -33,61 +30,55 @@ export default function GamePage() {
         setGameAnalysis,
     } = useChessStore();
 
-    // If URL has ?ai=1 but store was reset (e.g. page refresh), re-init AI game
+    // Always an AI game on this route
     useEffect(() => {
-        if (isAiParam && !isAiGame && gameId) {
+        if (!isAiGame && gameId) {
             startAiGame(gameId);
         }
-    }, [isAiParam, isAiGame, gameId, startAiGame]);
+    }, [isAiGame, gameId, startAiGame]);
 
-    // Reconnect WebSocket when connected
+    // Reconnect WebSocket
     useEffect(() => {
-        if (status !== "connected") return
+        if (status !== "connected") return;
 
-        socket.send(JSON.stringify({
-            type: "reconnect",
-            payload: { gameId }
-        }))
+        socket.send(JSON.stringify({ type: "reconnect", payload: { gameId } }));
 
         const handler = (event: MessageEvent) => {
             if (typeof event.data === "string") {
-                const message = JSON.parse(event.data)
+                const message = JSON.parse(event.data);
                 if (message.type === "reconnect") {
-                    reconnect(message.payload.fen, message.payload.moves ,message.payload.color)
+                    reconnect(message.payload.fen, message.payload.moves, message.payload.color);
                 }
             }
-        }
+        };
 
-        socket.addEventListener("message", handler)
-        return () => socket.removeEventListener("message", handler)
-    }, [status, gameId, socket, reconnect])
+        socket.addEventListener("message", handler);
+        return () => socket.removeEventListener("message", handler);
+    }, [status, gameId, socket, reconnect]);
 
-    // Trigger LLM's move when it's the AI's turn (after each human move)
+    // Trigger Claude's move after each human move
     const aiTriggerRef = useRef(false);
     useEffect(() => {
-        if (!isAiGame) return;
-        if (gameOver) return;
+        if (!isAiGame || gameOver) return;
 
-        // Human is white (player1) → moves 0, 2, 4... (even index moves were human)
-        // After human moves, moves.length is odd → it's AI's (black) turn
+        // Human (white) moves first → after each odd moves.length it's Claude's turn
         const isAiTurn = moves.length % 2 === 1;
-        if (!isAiTurn) return;
-        if (aiTriggerRef.current) return; // already triggered for this turn
+        if (!isAiTurn || aiTriggerRef.current) return;
 
         aiTriggerRef.current = true;
         setIsAiThinking(true);
         setAiMoveExplanation(null);
 
         fetch(`${AGENT_URL}/agent/play`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ gameId, playingAs: "black" }),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gameId, playingAs: 'black' }),
         })
             .then((r) => r.json())
             .then((data) => {
                 if (data.explanation) setAiMoveExplanation(data.explanation);
             })
-            .catch((err) => console.error("Agent play error:", err))
+            .catch((err) => console.error('Agent play error:', err))
             .finally(() => {
                 setIsAiThinking(false);
                 aiTriggerRef.current = false;
@@ -98,26 +89,21 @@ export default function GamePage() {
         setIsAnalyzing(true);
         try {
             const res = await fetch(`${AGENT_URL}/agent/analyze`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ gameId }),
             });
             const data = await res.json();
             if (data.analysis) setGameAnalysis(data.analysis);
         } catch (err) {
-            console.error("Analysis error:", err);
+            console.error('Analysis error:', err);
         } finally {
             setIsAnalyzing(false);
         }
     };
 
-    const handleResign = () => setShowResignConfirm(true);
-
     const confirmResign = () => {
-        socket.send(JSON.stringify({
-            type : "resign",
-            payload : { gameId }
-        }))
+        socket.send(JSON.stringify({ type: 'resign', payload: { gameId } }));
     };
 
     return (
@@ -130,11 +116,9 @@ export default function GamePage() {
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50 mb-2">
                             <div>
                                 <p className="text-xs text-muted-foreground">Opponent</p>
-                                <p className="text-lg font-semibold text-foreground">
-                                    {isAiGame ? "LLM" : "Opponent"}
-                                </p>
+                                <p className="text-lg font-semibold text-foreground">Claude AI</p>
                             </div>
-                            {isAiGame && isAiThinking && (
+                            {isAiThinking && (
                                 <span className="text-xs text-violet-400 animate-pulse">Thinking...</span>
                             )}
                         </div>
@@ -145,10 +129,10 @@ export default function GamePage() {
                         </div>
 
                         {/* Your Info */}
-                        <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50">
+                        <div className="flex items-center p-3 border border-border rounded-lg bg-card/50">
                             <div>
                                 <p className="text-xs text-muted-foreground">You</p>
-                                <p className="text-lg font-semibold text-foreground">You</p>
+                                <p className="text-lg font-semibold text-foreground">You (White)</p>
                             </div>
                         </div>
                     </div>
@@ -158,25 +142,23 @@ export default function GamePage() {
                         <div className="sticky top-4 space-y-3">
                             <MovesTable />
 
-                            {/* AI Panel — only in AI games */}
-                            {isAiGame && (
-                                <AiPanel
-                                    isThinking={isAiThinking}
-                                    explanation={aiMoveExplanation}
-                                    analysis={gameAnalysis}
-                                    onAnalyze={handleAnalyze}
-                                    isAnalyzing={isAnalyzing}
-                                    gameOver={gameOver}
-                                />
-                            )}
+                            <AiPanel
+                                isThinking={isAiThinking}
+                                explanation={aiMoveExplanation}
+                                analysis={gameAnalysis}
+                                onAnalyze={handleAnalyze}
+                                isAnalyzing={isAnalyzing}
+                                gameOver={gameOver}
+                            />
 
-                            {/* Resign Button */}
+                            {/* Resign */}
                             <div>
                                 {!showResignConfirm ? (
                                     <Button
-                                        onClick={handleResign}
+                                        onClick={() => setShowResignConfirm(true)}
                                         variant="outline"
                                         className="w-full border-destructive text-destructive hover:bg-destructive/10 bg-transparent"
+                                        disabled={gameOver}
                                     >
                                         Resign Game
                                     </Button>
