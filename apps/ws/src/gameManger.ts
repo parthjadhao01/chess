@@ -16,10 +16,10 @@ export class GameManager {
         this.subscriber = this.redis.duplicate();
         await this.subscriber.connect();
         await this.subscriber.subscribe("mcp_move_commands", (raw: string) => {
-            const { gameId, from, to } = JSON.parse(raw);
+            const { gameId, from, to, playerId } = JSON.parse(raw);
             const game = this.games.find((g) => g.GAME_ID === gameId);
             if (!game) return;
-            game.makeMoveById({ from, to }, this.redis).catch((err: unknown) => {
+            game.makeMoveById({ from, to }, this.redis, playerId).catch((err: unknown) => {
                 console.error("makeMoveById failed:", err);
             });
         });
