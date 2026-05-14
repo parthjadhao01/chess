@@ -28,6 +28,8 @@ router.get("/sessions", async (_req, res) => {
                 totalTokens: s.totalTokens,
                 promptTokens: s.promptTokens,
                 completionTokens: s.completionTokens,
+                estimatedCostUsd: s.estimatedCostUsd,
+                modelUsed: s.modelUsed,
                 logCount: s._count.logs,
                 blockedCount: s.logs.length,
             })),
@@ -54,15 +56,17 @@ router.get("/sessions/:id", async (req, res) => {
 // GET /logs/stats — summary numbers
 router.get("/stats", async (_req, res) => {
     try {
-        const [totalSessions, totalBlocks, tokenAgg] = await Promise.all([
+        const [totalSessions, totalBlocks, tokenAgg, costAgg] = await Promise.all([
             db.conversationSession.count(),
             db.conversationLog.count({ where: { type: "POLICY_BLOCK" } }),
             db.conversationSession.aggregate({ _sum: { totalTokens: true } }),
+            db.conversationSession.aggregate({ _sum: { estimatedCostUsd: true } }),
         ]);
         res.json({
             totalSessions,
             totalBlocks,
             totalTokens: tokenAgg._sum.totalTokens ?? 0,
+            totalCostUsd: costAgg._sum.estimatedCostUsd ?? 0,
         });
     } catch (err) {
         res.status(500).json({ error: "Failed to fetch stats" });

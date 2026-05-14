@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { McpClientManager } from "./mcpClientManager.js";
 import { PolicyEngine } from "./policyEngine.js";
 import { Logger } from "./logger.js";
+import { calculateCost } from "./costCalculator.js";
 import { MCP_SERVERS } from "./mcpServers.js";
 
 dotenv.config();
@@ -45,6 +46,7 @@ async function runAgentLoop(
     let explanation = "";
     let totalPromptTokens = 0;
     let totalCompletionTokens = 0;
+    let totalCostUsd = 0;
 
     for (let i = 0; i < maxIterations; i++) {
         const response = await openai.chat.completions.create({
@@ -59,8 +61,11 @@ async function runAgentLoop(
             break;
         }
 
-        totalPromptTokens     += response.usage?.prompt_tokens     ?? 0;
-        totalCompletionTokens += response.usage?.completion_tokens ?? 0;
+        const promptTokens     = response.usage?.prompt_tokens     ?? 0;
+        const completionTokens = response.usage?.completion_tokens ?? 0;
+        totalPromptTokens     += promptTokens;
+        totalCompletionTokens += completionTokens;
+        totalCostUsd          += calculateCost(MODEL, promptTokens, completionTokens);
 
         const choice  = response.choices[0];
         const message = choice.message;
@@ -131,7 +136,12 @@ async function runAgentLoop(
         }
     }
 
-    await logger.endSession({ prompt: totalPromptTokens, completion: totalCompletionTokens });
+    await logger.endSession({
+        prompt: totalPromptTokens,
+        completion: totalCompletionTokens,
+        estimatedCostUsd: totalCostUsd,
+        modelUsed: MODEL,
+    });
 
     return { result: finalResult, explanation: explanation.trim() };
 }

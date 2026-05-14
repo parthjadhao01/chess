@@ -157,7 +157,9 @@ exports.Prisma.ConversationSessionScalarFieldEnum = {
   endedAt: 'endedAt',
   totalTokens: 'totalTokens',
   promptTokens: 'promptTokens',
-  completionTokens: 'completionTokens'
+  completionTokens: 'completionTokens',
+  estimatedCostUsd: 'estimatedCostUsd',
+  modelUsed: 'modelUsed'
 };
 
 exports.Prisma.ConversationLogScalarFieldEnum = {

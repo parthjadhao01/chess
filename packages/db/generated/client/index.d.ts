@@ -4761,12 +4761,14 @@ export namespace Prisma {
     totalTokens: number | null
     promptTokens: number | null
     completionTokens: number | null
+    estimatedCostUsd: number | null
   }
 
   export type ConversationSessionSumAggregateOutputType = {
     totalTokens: number | null
     promptTokens: number | null
     completionTokens: number | null
+    estimatedCostUsd: number | null
   }
 
   export type ConversationSessionMinAggregateOutputType = {
@@ -4778,6 +4780,8 @@ export namespace Prisma {
     totalTokens: number | null
     promptTokens: number | null
     completionTokens: number | null
+    estimatedCostUsd: number | null
+    modelUsed: string | null
   }
 
   export type ConversationSessionMaxAggregateOutputType = {
@@ -4789,6 +4793,8 @@ export namespace Prisma {
     totalTokens: number | null
     promptTokens: number | null
     completionTokens: number | null
+    estimatedCostUsd: number | null
+    modelUsed: string | null
   }
 
   export type ConversationSessionCountAggregateOutputType = {
@@ -4800,6 +4806,8 @@ export namespace Prisma {
     totalTokens: number
     promptTokens: number
     completionTokens: number
+    estimatedCostUsd: number
+    modelUsed: number
     _all: number
   }
 
@@ -4808,12 +4816,14 @@ export namespace Prisma {
     totalTokens?: true
     promptTokens?: true
     completionTokens?: true
+    estimatedCostUsd?: true
   }
 
   export type ConversationSessionSumAggregateInputType = {
     totalTokens?: true
     promptTokens?: true
     completionTokens?: true
+    estimatedCostUsd?: true
   }
 
   export type ConversationSessionMinAggregateInputType = {
@@ -4825,6 +4835,8 @@ export namespace Prisma {
     totalTokens?: true
     promptTokens?: true
     completionTokens?: true
+    estimatedCostUsd?: true
+    modelUsed?: true
   }
 
   export type ConversationSessionMaxAggregateInputType = {
@@ -4836,6 +4848,8 @@ export namespace Prisma {
     totalTokens?: true
     promptTokens?: true
     completionTokens?: true
+    estimatedCostUsd?: true
+    modelUsed?: true
   }
 
   export type ConversationSessionCountAggregateInputType = {
@@ -4847,6 +4861,8 @@ export namespace Prisma {
     totalTokens?: true
     promptTokens?: true
     completionTokens?: true
+    estimatedCostUsd?: true
+    modelUsed?: true
     _all?: true
   }
 
@@ -4945,6 +4961,8 @@ export namespace Prisma {
     totalTokens: number
     promptTokens: number
     completionTokens: number
+    estimatedCostUsd: number
+    modelUsed: string
     _count: ConversationSessionCountAggregateOutputType | null
     _avg: ConversationSessionAvgAggregateOutputType | null
     _sum: ConversationSessionSumAggregateOutputType | null
@@ -4975,6 +4993,8 @@ export namespace Prisma {
     totalTokens?: boolean
     promptTokens?: boolean
     completionTokens?: boolean
+    estimatedCostUsd?: boolean
+    modelUsed?: boolean
     logs?: boolean | ConversationSession$logsArgs<ExtArgs>
     _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversationSession"]>
@@ -4988,6 +5008,8 @@ export namespace Prisma {
     totalTokens?: boolean
     promptTokens?: boolean
     completionTokens?: boolean
+    estimatedCostUsd?: boolean
+    modelUsed?: boolean
   }, ExtArgs["result"]["conversationSession"]>
 
   export type ConversationSessionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4999,6 +5021,8 @@ export namespace Prisma {
     totalTokens?: boolean
     promptTokens?: boolean
     completionTokens?: boolean
+    estimatedCostUsd?: boolean
+    modelUsed?: boolean
   }, ExtArgs["result"]["conversationSession"]>
 
   export type ConversationSessionSelectScalar = {
@@ -5010,9 +5034,11 @@ export namespace Prisma {
     totalTokens?: boolean
     promptTokens?: boolean
     completionTokens?: boolean
+    estimatedCostUsd?: boolean
+    modelUsed?: boolean
   }
 
-  export type ConversationSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "endpoint" | "gameId" | "startedAt" | "endedAt" | "totalTokens" | "promptTokens" | "completionTokens", ExtArgs["result"]["conversationSession"]>
+  export type ConversationSessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "endpoint" | "gameId" | "startedAt" | "endedAt" | "totalTokens" | "promptTokens" | "completionTokens" | "estimatedCostUsd" | "modelUsed", ExtArgs["result"]["conversationSession"]>
   export type ConversationSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     logs?: boolean | ConversationSession$logsArgs<ExtArgs>
     _count?: boolean | ConversationSessionCountOutputTypeDefaultArgs<ExtArgs>
@@ -5034,6 +5060,8 @@ export namespace Prisma {
       totalTokens: number
       promptTokens: number
       completionTokens: number
+      estimatedCostUsd: number
+      modelUsed: string
     }, ExtArgs["result"]["conversationSession"]>
     composites: {}
   }
@@ -5466,6 +5494,8 @@ export namespace Prisma {
     readonly totalTokens: FieldRef<"ConversationSession", 'Int'>
     readonly promptTokens: FieldRef<"ConversationSession", 'Int'>
     readonly completionTokens: FieldRef<"ConversationSession", 'Int'>
+    readonly estimatedCostUsd: FieldRef<"ConversationSession", 'Float'>
+    readonly modelUsed: FieldRef<"ConversationSession", 'String'>
   }
     
 
@@ -7117,7 +7147,9 @@ export namespace Prisma {
     endedAt: 'endedAt',
     totalTokens: 'totalTokens',
     promptTokens: 'promptTokens',
-    completionTokens: 'completionTokens'
+    completionTokens: 'completionTokens',
+    estimatedCostUsd: 'estimatedCostUsd',
+    modelUsed: 'modelUsed'
   };
 
   export type ConversationSessionScalarFieldEnum = (typeof ConversationSessionScalarFieldEnum)[keyof typeof ConversationSessionScalarFieldEnum]
@@ -7243,6 +7275,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+  /**
    * Reference to a field of type 'LogType'
    */
   export type EnumLogTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LogType'>
@@ -7260,20 +7306,6 @@ export namespace Prisma {
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -7494,6 +7526,8 @@ export namespace Prisma {
     totalTokens?: IntFilter<"ConversationSession"> | number
     promptTokens?: IntFilter<"ConversationSession"> | number
     completionTokens?: IntFilter<"ConversationSession"> | number
+    estimatedCostUsd?: FloatFilter<"ConversationSession"> | number
+    modelUsed?: StringFilter<"ConversationSession"> | string
     logs?: ConversationLogListRelationFilter
   }
 
@@ -7506,6 +7540,8 @@ export namespace Prisma {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
+    modelUsed?: SortOrder
     logs?: ConversationLogOrderByRelationAggregateInput
   }
 
@@ -7521,6 +7557,8 @@ export namespace Prisma {
     totalTokens?: IntFilter<"ConversationSession"> | number
     promptTokens?: IntFilter<"ConversationSession"> | number
     completionTokens?: IntFilter<"ConversationSession"> | number
+    estimatedCostUsd?: FloatFilter<"ConversationSession"> | number
+    modelUsed?: StringFilter<"ConversationSession"> | string
     logs?: ConversationLogListRelationFilter
   }, "id">
 
@@ -7533,6 +7571,8 @@ export namespace Prisma {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
+    modelUsed?: SortOrder
     _count?: ConversationSessionCountOrderByAggregateInput
     _avg?: ConversationSessionAvgOrderByAggregateInput
     _max?: ConversationSessionMaxOrderByAggregateInput
@@ -7552,6 +7592,8 @@ export namespace Prisma {
     totalTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
     promptTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
     completionTokens?: IntWithAggregatesFilter<"ConversationSession"> | number
+    estimatedCostUsd?: FloatWithAggregatesFilter<"ConversationSession"> | number
+    modelUsed?: StringWithAggregatesFilter<"ConversationSession"> | string
   }
 
   export type ConversationLogWhereInput = {
@@ -7858,6 +7900,8 @@ export namespace Prisma {
     totalTokens?: number
     promptTokens?: number
     completionTokens?: number
+    estimatedCostUsd?: number
+    modelUsed?: string
     logs?: ConversationLogCreateNestedManyWithoutSessionInput
   }
 
@@ -7870,6 +7914,8 @@ export namespace Prisma {
     totalTokens?: number
     promptTokens?: number
     completionTokens?: number
+    estimatedCostUsd?: number
+    modelUsed?: string
     logs?: ConversationLogUncheckedCreateNestedManyWithoutSessionInput
   }
 
@@ -7882,6 +7928,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
     logs?: ConversationLogUpdateManyWithoutSessionNestedInput
   }
 
@@ -7894,6 +7942,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
     logs?: ConversationLogUncheckedUpdateManyWithoutSessionNestedInput
   }
 
@@ -7906,6 +7956,8 @@ export namespace Prisma {
     totalTokens?: number
     promptTokens?: number
     completionTokens?: number
+    estimatedCostUsd?: number
+    modelUsed?: string
   }
 
   export type ConversationSessionUpdateManyMutationInput = {
@@ -7917,6 +7969,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
   }
 
   export type ConversationSessionUncheckedUpdateManyInput = {
@@ -7928,6 +7982,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
   }
 
   export type ConversationLogCreateInput = {
@@ -8277,6 +8333,17 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type ConversationLogListRelationFilter = {
     every?: ConversationLogWhereInput
     some?: ConversationLogWhereInput
@@ -8301,12 +8368,15 @@ export namespace Prisma {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
+    modelUsed?: SortOrder
   }
 
   export type ConversationSessionAvgOrderByAggregateInput = {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
   }
 
   export type ConversationSessionMaxOrderByAggregateInput = {
@@ -8318,6 +8388,8 @@ export namespace Prisma {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
+    modelUsed?: SortOrder
   }
 
   export type ConversationSessionMinOrderByAggregateInput = {
@@ -8329,12 +8401,15 @@ export namespace Prisma {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
+    modelUsed?: SortOrder
   }
 
   export type ConversationSessionSumOrderByAggregateInput = {
     totalTokens?: SortOrder
     promptTokens?: SortOrder
     completionTokens?: SortOrder
+    estimatedCostUsd?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8367,6 +8442,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type EnumLogTypeFilter<$PrismaModel = never> = {
@@ -8777,6 +8868,14 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type ConversationLogUpdateManyWithoutSessionNestedInput = {
     create?: XOR<ConversationLogCreateWithoutSessionInput, ConversationLogUncheckedCreateWithoutSessionInput> | ConversationLogCreateWithoutSessionInput[] | ConversationLogUncheckedCreateWithoutSessionInput[]
     connectOrCreate?: ConversationLogCreateOrConnectWithoutSessionInput | ConversationLogCreateOrConnectWithoutSessionInput[]
@@ -9007,6 +9106,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type NestedEnumLogTypeFilter<$PrismaModel = never> = {
@@ -9583,6 +9698,8 @@ export namespace Prisma {
     totalTokens?: number
     promptTokens?: number
     completionTokens?: number
+    estimatedCostUsd?: number
+    modelUsed?: string
   }
 
   export type ConversationSessionUncheckedCreateWithoutLogsInput = {
@@ -9594,6 +9711,8 @@ export namespace Prisma {
     totalTokens?: number
     promptTokens?: number
     completionTokens?: number
+    estimatedCostUsd?: number
+    modelUsed?: string
   }
 
   export type ConversationSessionCreateOrConnectWithoutLogsInput = {
@@ -9621,6 +9740,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
   }
 
   export type ConversationSessionUncheckedUpdateWithoutLogsInput = {
@@ -9632,6 +9753,8 @@ export namespace Prisma {
     totalTokens?: IntFieldUpdateOperationsInput | number
     promptTokens?: IntFieldUpdateOperationsInput | number
     completionTokens?: IntFieldUpdateOperationsInput | number
+    estimatedCostUsd?: FloatFieldUpdateOperationsInput | number
+    modelUsed?: StringFieldUpdateOperationsInput | string
   }
 
   export type GameCreateManyPlayer1Input = {

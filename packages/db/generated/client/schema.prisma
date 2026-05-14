@@ -81,6 +81,8 @@ model ConversationSession {
   totalTokens      Int               @default(0)
   promptTokens     Int               @default(0)
   completionTokens Int               @default(0)
+  estimatedCostUsd Float             @default(0)
+  modelUsed        String            @default("")
   logs             ConversationLog[]
 }
 

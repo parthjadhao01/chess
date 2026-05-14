@@ -1,4 +1,5 @@
 import { prisma as db } from "@repo/db";
+import { formatCost } from "./costCalculator.js";
 
 type LogType =
     | "TOOL_CALL"
@@ -22,7 +23,12 @@ export class Logger {
         return session.id;
     }
 
-    async endSession(tokens: { prompt: number; completion: number }): Promise<void> {
+    async endSession(tokens: {
+        prompt: number;
+        completion: number;
+        estimatedCostUsd: number;
+        modelUsed: string;
+    }): Promise<void> {
         if (!this.sessionId) return;
         await db.conversationSession.update({
             where: { id: this.sessionId },
@@ -31,9 +37,15 @@ export class Logger {
                 promptTokens: tokens.prompt,
                 completionTokens: tokens.completion,
                 totalTokens: tokens.prompt + tokens.completion,
+                estimatedCostUsd: tokens.estimatedCostUsd,
+                modelUsed: tokens.modelUsed,
             },
         });
-        console.log(`[Logger] Session ended: ${this.sessionId} — ${tokens.prompt + tokens.completion} tokens`);
+        console.log(
+            `[Logger] Session ended: ${this.sessionId} — ` +
+            `${tokens.prompt + tokens.completion} tokens — ` +
+            `${formatCost(tokens.estimatedCostUsd)}`
+        );
     }
 
     async logToolCall(toolName: string, args: Record<string, unknown>): Promise<void> {

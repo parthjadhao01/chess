@@ -13,6 +13,8 @@ interface Session {
     totalTokens: number;
     promptTokens: number;
     completionTokens: number;
+    estimatedCostUsd: number;
+    modelUsed: string;
     logCount: number;
     blockedCount: number;
 }
@@ -33,6 +35,14 @@ interface Stats {
     totalSessions: number;
     totalBlocks: number;
     totalTokens: number;
+    totalCostUsd: number;
+}
+
+function formatCost(usd: number): string {
+    if (usd === 0)      return "$0.00 (free)";
+    if (usd < 0.000001) return "<$0.000001";
+    if (usd < 0.01)     return `$${usd.toFixed(6)}`;
+    return `$${usd.toFixed(4)}`;
 }
 
 const LOG_STYLES: Record<string, { color: string; label: string }> = {
@@ -81,10 +91,11 @@ export default function LogsPage() {
             </div>
 
             {stats && (
-                <div className="grid grid-cols-3 gap-4">
-                    <StatCard label="Total Sessions"      value={stats.totalSessions}               color="text-white"     />
-                    <StatCard label="Blocked Tool Calls"  value={stats.totalBlocks}                 color="text-red-400"   />
-                    <StatCard label="Total Tokens Used"   value={stats.totalTokens.toLocaleString()} color="text-indigo-400" />
+                <div className="grid grid-cols-4 gap-4">
+                    <StatCard label="Total Sessions"     value={stats.totalSessions}                color="text-white"      />
+                    <StatCard label="Blocked Tool Calls" value={stats.totalBlocks}                  color="text-red-400"    />
+                    <StatCard label="Total Tokens"       value={stats.totalTokens.toLocaleString()} color="text-indigo-400" />
+                    <StatCard label="Est. Total Cost"    value={formatCost(stats.totalCostUsd)}     color="text-green-400"  />
                 </div>
             )}
 
@@ -163,6 +174,9 @@ function SessionRow({ session, isExpanded, onToggle }: {
                 <div className="flex items-center gap-5 text-sm text-gray-400 shrink-0">
                     <span>{session.logCount} events</span>
                     <span className="text-indigo-400">{session.totalTokens.toLocaleString()} tokens</span>
+                    <span className={session.estimatedCostUsd === 0 ? "text-green-500" : "text-yellow-400"}>
+                        {formatCost(session.estimatedCostUsd)}
+                    </span>
                     {duration !== null && <span>{duration}s</span>}
                     <span className="text-xs">{new Date(session.startedAt).toLocaleTimeString()}</span>
                 </div>
@@ -178,10 +192,16 @@ function SessionRow({ session, isExpanded, onToggle }: {
                         </div>
                     )}
                     {session.totalTokens > 0 && (
-                        <div className="mt-4 pt-4 border-t border-gray-800 flex gap-6 text-xs text-gray-500">
+                        <div className="mt-4 pt-4 border-t border-gray-800 flex gap-6 text-xs text-gray-500 flex-wrap">
                             <span>Prompt: {session.promptTokens.toLocaleString()}</span>
                             <span>Completion: {session.completionTokens.toLocaleString()}</span>
-                            <span className="text-indigo-400 font-medium">Total: {session.totalTokens.toLocaleString()}</span>
+                            <span className="text-indigo-400 font-medium">Total: {session.totalTokens.toLocaleString()} tokens</span>
+                            <span className={`font-medium ${session.estimatedCostUsd === 0 ? "text-green-500" : "text-yellow-400"}`}>
+                                Est. cost: {formatCost(session.estimatedCostUsd)}
+                            </span>
+                            {session.modelUsed && (
+                                <span className="font-mono text-gray-600">{session.modelUsed}</span>
+                            )}
                         </div>
                     )}
                 </div>
