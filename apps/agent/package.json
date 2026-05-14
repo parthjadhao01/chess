@@ -21,6 +21,7 @@
     "exa-mcp-server": "^3.2.1",
     "express": "^5.2.1",
     "openai": "^4.98.0",
+    "redis": "^5.11.0",
     "tsx": "^4.7.0"
   },
   "devDependencies": {

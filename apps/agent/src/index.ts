@@ -3,6 +3,7 @@ import cors from "cors";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { McpClientManager } from "./mcpClientManager.js";
+import { PolicyEngine } from "./policyEngine.js";
 import { MCP_SERVERS } from "./mcpServers.js";
 
 dotenv.config();
@@ -19,6 +20,7 @@ const openai = new OpenAI({
 const MODEL = process.env.OPENROUTER_MODEL || "google/gemma-4-26b-a4b-it:free";
 
 const mcpManager = new McpClientManager();
+const policyEngine = new PolicyEngine(process.env.REDIS_URL || "redis://localhost:6379");
 
 // ── Agent loop ────────────────────────────────────────────────────────────────
 
@@ -45,30 +47,66 @@ async function runAgentLoop(
             messages,
         });
 
+        if (!response.choices?.length) {
+            console.error("[Agent] Empty choices from LLM:", JSON.stringify(response));
+            break;
+        }
+
         const choice = response.choices[0];
         const message = choice.message;
 
         if (message.content) explanation += message.content + " ";
-
         if (choice.finish_reason === "stop" || !message.tool_calls?.length) break;
 
         messages.push(message);
 
         for (const toolCall of message.tool_calls) {
             const args = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
+            const toolName = toolCall.function.name;
+            let toolResult: string;
 
-            console.log(`[Agent] Calling tool: ${toolCall.function.name}`, args);
+            // ── Policy check before every MCP call ────────────────────────────
+            const decision = await policyEngine.evaluate(toolName, args);
 
-            const toolResult = await mcpManager.callTool(toolCall.function.name, args);
+            if (decision.decision === "block") {
+                toolResult = JSON.stringify({
+                    error: "TOOL_BLOCKED",
+                    reason: decision.reason,
+                    tool: toolName,
+                });
+                console.log(`[Agent] Tool blocked: ${toolName} — ${decision.reason}`);
 
-            console.log(`[Agent] Tool result: ${toolResult}`);
+            } else if (decision.decision === "pending_approval") {
+                console.log(`[Agent] Waiting for human approval: ${toolName}`);
+                const outcome = await policyEngine.waitForApproval(
+                    decision.approvalId,
+                    decision.timeoutMs
+                );
 
-            if (toolCall.function.name === "make_move") {
+                if (outcome === "approved") {
+                    toolResult = await mcpManager.callTool(toolName, args);
+                } else {
+                    toolResult = JSON.stringify({
+                        error: "TOOL_DENIED",
+                        reason: "Human reviewer denied this tool call",
+                        tool: toolName,
+                    });
+                }
+
+            } else {
+                // "allow" — execute via MCP normally
+                toolResult = await mcpManager.callTool(toolName, args);
+            }
+            // ── End policy check ───────────────────────────────────────────────
+
+            console.log(`[Agent] Tool: ${toolName} | Result: ${toolResult}`);
+
+            if (toolName === "make_move") {
                 try {
                     const parsed = JSON.parse(toolResult);
                     if (!parsed.error) finalResult = toolResult;
                 } catch {
-                    // non-JSON result, ignore
+                    // non-JSON result
                 }
             }
 
@@ -83,7 +121,7 @@ async function runAgentLoop(
     return { result: finalResult, explanation: explanation.trim() };
 }
 
-// ── Routes ────────────────────────────────────-───────────────────────────────
+// ── Routes ────────────────────────────────────────────────────────────────────
 
 app.post("/agent/play", async (req, res) => {
     try {
@@ -142,6 +180,7 @@ Your analysis workflow:
 const PORT = Number(process.env.PORT) || 3002;
 
 async function start() {
+    await policyEngine.connect();
     await mcpManager.connectAll(MCP_SERVERS);
 
     app.listen(PORT, () => {
