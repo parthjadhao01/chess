@@ -121,14 +121,57 @@ exports.Prisma.MoveScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ConversationSessionScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  gameId: 'gameId',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  totalTokens: 'totalTokens',
+  promptTokens: 'promptTokens',
+  completionTokens: 'completionTokens',
+  estimatedCostUsd: 'estimatedCostUsd',
+  modelUsed: 'modelUsed'
+};
+
+exports.Prisma.ConversationLogScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  type: 'type',
+  toolName: 'toolName',
+  args: 'args',
+  result: 'result',
+  policyDecision: 'policyDecision',
+  policyRuleId: 'policyRuleId',
+  policyReason: 'policyReason',
+  durationMs: 'durationMs',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.GameStatus = exports.$Enums.GameStatus = {
   ONGOING: 'ONGOING',
@@ -136,10 +179,23 @@ exports.GameStatus = exports.$Enums.GameStatus = {
   ABANDONED: 'ABANDONED'
 };
 
+exports.LogType = exports.$Enums.LogType = {
+  TOOL_CALL: 'TOOL_CALL',
+  POLICY_ALLOW: 'POLICY_ALLOW',
+  POLICY_BLOCK: 'POLICY_BLOCK',
+  POLICY_PENDING: 'POLICY_PENDING',
+  POLICY_RESOLVED: 'POLICY_RESOLVED',
+  TOOL_RESULT: 'TOOL_RESULT',
+  TOOL_ERROR: 'TOOL_ERROR',
+  AI_RESPONSE: 'AI_RESPONSE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Game: 'Game',
-  Move: 'Move'
+  Move: 'Move',
+  ConversationSession: 'ConversationSession',
+  ConversationLog: 'ConversationLog'
 };
 /**
  * Create the Client
@@ -193,13 +249,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"linux-musl-arm64-openssl-3.0.x\"]\n  output        = \"./../generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum GameStatus {\n  ONGOING\n  FINISHED\n  ABANDONED\n}\n\nmodel User {\n  id       String @id @default(uuid())\n  username String @unique\n  password String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Relations\n  gamesAsPlayer1 Game[] @relation(\"Player1Games\")\n  gamesAsPlayer2 Game[] @relation(\"Player2Games\")\n  moves          Move[]\n}\n\nmodel Game {\n  id String @id @default(uuid())\n\n  // Players\n  player1   User   @relation(\"Player1Games\", fields: [player1Id], references: [id])\n  player1Id String\n\n  player2   User   @relation(\"Player2Games\", fields: [player2Id], references: [id])\n  player2Id String\n\n  // Game state\n  status   GameStatus @default(ONGOING)\n  boardFen String     @default(\"startpos\") // chess board snapshot\n\n  // Relations\n  moves Move[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Move {\n  id String @id @default(uuid())\n\n  game   Game   @relation(fields: [gameId], references: [id])\n  gameId String\n\n  player   User   @relation(fields: [playerId], references: [id])\n  playerId String\n\n  from   String\n  to     String\n  moveNo Int\n\n  createdAt DateTime @default(now())\n}\n",
-  "inlineSchemaHash": "b879dceb8d8f4cce375b69a53fe110e91cdff3bc372a25bb456f467ba808948f",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"linux-musl-arm64-openssl-3.0.x\"]\n  output        = \"./../generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum GameStatus {\n  ONGOING\n  FINISHED\n  ABANDONED\n}\n\nmodel User {\n  id       String @id @default(uuid())\n  username String @unique\n  password String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Relations\n  gamesAsPlayer1 Game[] @relation(\"Player1Games\")\n  gamesAsPlayer2 Game[] @relation(\"Player2Games\")\n  moves          Move[]\n}\n\nmodel Game {\n  id String @id @default(uuid())\n\n  // Players\n  player1   User   @relation(\"Player1Games\", fields: [player1Id], references: [id])\n  player1Id String\n\n  player2   User   @relation(\"Player2Games\", fields: [player2Id], references: [id])\n  player2Id String\n\n  // Game state\n  status   GameStatus @default(ONGOING)\n  boardFen String     @default(\"startpos\") // chess board snapshot\n\n  // Relations\n  moves Move[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Move {\n  id String @id @default(uuid())\n\n  game   Game   @relation(fields: [gameId], references: [id])\n  gameId String\n\n  player   User   @relation(fields: [playerId], references: [id])\n  playerId String\n\n  from   String\n  to     String\n  moveNo Int\n\n  createdAt DateTime @default(now())\n}\n\nmodel ConversationSession {\n  id               String            @id @default(uuid())\n  endpoint         String\n  gameId           String?\n  startedAt        DateTime          @default(now())\n  endedAt          DateTime?\n  totalTokens      Int               @default(0)\n  promptTokens     Int               @default(0)\n  completionTokens Int               @default(0)\n  estimatedCostUsd Float             @default(0)\n  modelUsed        String            @default(\"\")\n  logs             ConversationLog[]\n}\n\nmodel ConversationLog {\n  id             String              @id @default(uuid())\n  sessionId      String\n  session        ConversationSession @relation(fields: [sessionId], references: [id])\n  type           LogType\n  toolName       String?\n  args           Json?\n  result         Json?\n  policyDecision String?\n  policyRuleId   String?\n  policyReason   String?\n  durationMs     Int?\n  createdAt      DateTime            @default(now())\n}\n\nenum LogType {\n  TOOL_CALL\n  POLICY_ALLOW\n  POLICY_BLOCK\n  POLICY_PENDING\n  POLICY_RESOLVED\n  TOOL_RESULT\n  TOOL_ERROR\n  AI_RESPONSE\n}\n",
+  "inlineSchemaHash": "dac8e58000efd0c145cb6a52f87a338235e0f4b3da148d988d07e4a2deeb85aa",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gamesAsPlayer1\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"Player1Games\"},{\"name\":\"gamesAsPlayer2\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"Player2Games\"},{\"name\":\"moves\",\"kind\":\"object\",\"type\":\"Move\",\"relationName\":\"MoveToUser\"}],\"dbName\":null},\"Game\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player1\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"Player1Games\"},{\"name\":\"player1Id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player2\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"Player2Games\"},{\"name\":\"player2Id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"GameStatus\"},{\"name\":\"boardFen\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moves\",\"kind\":\"object\",\"type\":\"Move\",\"relationName\":\"GameToMove\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Move\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"game\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"GameToMove\"},{\"name\":\"gameId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"MoveToUser\"},{\"name\":\"playerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"from\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"to\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moveNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gamesAsPlayer1\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"Player1Games\"},{\"name\":\"gamesAsPlayer2\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"Player2Games\"},{\"name\":\"moves\",\"kind\":\"object\",\"type\":\"Move\",\"relationName\":\"MoveToUser\"}],\"dbName\":null},\"Game\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player1\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"Player1Games\"},{\"name\":\"player1Id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player2\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"Player2Games\"},{\"name\":\"player2Id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"GameStatus\"},{\"name\":\"boardFen\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moves\",\"kind\":\"object\",\"type\":\"Move\",\"relationName\":\"GameToMove\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Move\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"game\",\"kind\":\"object\",\"type\":\"Game\",\"relationName\":\"GameToMove\"},{\"name\":\"gameId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"player\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"MoveToUser\"},{\"name\":\"playerId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"from\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"to\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"moveNo\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ConversationSession\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"endpoint\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gameId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"startedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"endedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"totalTokens\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"promptTokens\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"completionTokens\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"estimatedCostUsd\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"modelUsed\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"logs\",\"kind\":\"object\",\"type\":\"ConversationLog\",\"relationName\":\"ConversationLogToConversationSession\"}],\"dbName\":null},\"ConversationLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sessionId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"session\",\"kind\":\"object\",\"type\":\"ConversationSession\",\"relationName\":\"ConversationLogToConversationSession\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"LogType\"},{\"name\":\"toolName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"args\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"result\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"policyDecision\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"policyRuleId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"policyReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"durationMs\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

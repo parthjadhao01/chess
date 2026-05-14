@@ -6,6 +6,7 @@ import crypto from "crypto"
 import { Chess } from "chess.js"
 import {createClient} from "redis";
 import { policyRouter } from "./routes/policy.js";
+import logsRouter from "./routes/logs.js";
 
 
 const app = express();
@@ -226,6 +227,7 @@ const PORT = process.env.PORT || 3001;
 
 redis.connect().then(() => {
     app.use("/policy", policyRouter(redis));
+    app.use("/logs", logsRouter);
     app.listen(PORT, () => {
         console.log(`Authentication-Server started on port ${PORT}`)
     })

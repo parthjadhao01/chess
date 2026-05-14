@@ -4,6 +4,8 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 import { McpClientManager } from "./mcpClientManager.js";
 import { PolicyEngine } from "./policyEngine.js";
+import { Logger } from "./logger.js";
+import { calculateCost } from "./costCalculator.js";
 import { MCP_SERVERS } from "./mcpServers.js";
 
 dotenv.config();
@@ -18,7 +20,6 @@ const openai = new OpenAI({
 });
 
 const MODEL = process.env.OPENROUTER_MODEL || "google/gemma-4-26b-a4b-it:free";
-
 const mcpManager = new McpClientManager();
 const policyEngine = new PolicyEngine(process.env.REDIS_URL || "redis://localhost:6379");
 
@@ -27,10 +28,15 @@ const policyEngine = new PolicyEngine(process.env.REDIS_URL || "redis://localhos
 async function runAgentLoop(
     systemPrompt: string,
     userPrompt: string,
+    endpoint: string,
+    gameId?: string,
     maxIterations = 10
 ): Promise<{ result: string; explanation: string }> {
-    const tools = mcpManager.getOpenAITools();
 
+    const logger = new Logger();
+    await logger.startSession(endpoint, gameId);
+
+    const tools = mcpManager.getOpenAITools();
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
@@ -38,6 +44,9 @@ async function runAgentLoop(
 
     let finalResult = "";
     let explanation = "";
+    let totalPromptTokens = 0;
+    let totalCompletionTokens = 0;
+    let totalCostUsd = 0;
 
     for (let i = 0; i < maxIterations; i++) {
         const response = await openai.chat.completions.create({
@@ -52,50 +61,65 @@ async function runAgentLoop(
             break;
         }
 
-        const choice = response.choices[0];
+        const promptTokens     = response.usage?.prompt_tokens     ?? 0;
+        const completionTokens = response.usage?.completion_tokens ?? 0;
+        totalPromptTokens     += promptTokens;
+        totalCompletionTokens += completionTokens;
+        totalCostUsd          += calculateCost(MODEL, promptTokens, completionTokens);
+
+        const choice  = response.choices[0];
         const message = choice.message;
 
-        if (message.content) explanation += message.content + " ";
+        if (message.content) {
+            explanation += message.content + " ";
+            await logger.logAiResponse(message.content);
+        }
+
         if (choice.finish_reason === "stop" || !message.tool_calls?.length) break;
 
         messages.push(message);
 
         for (const toolCall of message.tool_calls) {
-            const args = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
             const toolName = toolCall.function.name;
+            const args = JSON.parse(toolCall.function.arguments) as Record<string, unknown>;
             let toolResult: string;
+
+            await logger.logToolCall(toolName, args);
 
             // ── Policy check before every MCP call ────────────────────────────
             const decision = await policyEngine.evaluate(toolName, args);
 
             if (decision.decision === "block") {
-                toolResult = JSON.stringify({
-                    error: "TOOL_BLOCKED",
-                    reason: decision.reason,
-                    tool: toolName,
-                });
+                await logger.logPolicyBlock(toolName, decision.reason, decision.ruleId);
                 console.log(`[Agent] Tool blocked: ${toolName} — ${decision.reason}`);
+                toolResult = JSON.stringify({ error: "TOOL_BLOCKED", reason: decision.reason, tool: toolName });
 
             } else if (decision.decision === "pending_approval") {
+                await logger.logPolicyPending(toolName, decision.approvalId);
                 console.log(`[Agent] Waiting for human approval: ${toolName}`);
-                const outcome = await policyEngine.waitForApproval(
-                    decision.approvalId,
-                    decision.timeoutMs
-                );
+
+                const outcome = await policyEngine.waitForApproval(decision.approvalId, decision.timeoutMs);
+                await logger.logPolicyResolved(toolName, outcome);
 
                 if (outcome === "approved") {
+                    const t0 = Date.now();
                     toolResult = await mcpManager.callTool(toolName, args);
+                    await logger.logToolResult(toolName, toolResult, Date.now() - t0);
                 } else {
-                    toolResult = JSON.stringify({
-                        error: "TOOL_DENIED",
-                        reason: "Human reviewer denied this tool call",
-                        tool: toolName,
-                    });
+                    toolResult = JSON.stringify({ error: "TOOL_DENIED", reason: "Human reviewer denied this tool call", tool: toolName });
                 }
 
             } else {
-                // "allow" — execute via MCP normally
-                toolResult = await mcpManager.callTool(toolName, args);
+                await logger.logPolicyAllow(toolName);
+                const t0 = Date.now();
+                try {
+                    toolResult = await mcpManager.callTool(toolName, args);
+                    await logger.logToolResult(toolName, toolResult, Date.now() - t0);
+                } catch (err) {
+                    const msg = err instanceof Error ? err.message : String(err);
+                    await logger.logToolError(toolName, msg);
+                    toolResult = JSON.stringify({ error: msg });
+                }
             }
             // ── End policy check ───────────────────────────────────────────────
 
@@ -105,18 +129,19 @@ async function runAgentLoop(
                 try {
                     const parsed = JSON.parse(toolResult);
                     if (!parsed.error) finalResult = toolResult;
-                } catch {
-                    // non-JSON result
-                }
+                } catch { /* non-JSON result */ }
             }
 
-            messages.push({
-                role: "tool",
-                tool_call_id: toolCall.id,
-                content: toolResult,
-            });
+            messages.push({ role: "tool", tool_call_id: toolCall.id, content: toolResult });
         }
     }
+
+    await logger.endSession({
+        prompt: totalPromptTokens,
+        completion: totalCompletionTokens,
+        estimatedCostUsd: totalCostUsd,
+        modelUsed: MODEL,
+    });
 
     return { result: finalResult, explanation: explanation.trim() };
 }
@@ -140,7 +165,9 @@ Strategy:
 - For middlegame and endgame positions, rely on your own analysis.
 - Call make_move exactly once with your chosen move.
 - Explain your reasoning in 1-2 sentences.`,
-            `You are playing as ${playingAs}. Game ID: ${gameId}.`
+            `You are playing as ${playingAs}. Game ID: ${gameId}.`,
+            "/agent/play",
+            gameId
         );
 
         res.json({ move: result ? JSON.parse(result) : null, explanation });
@@ -165,7 +192,9 @@ Your analysis workflow:
 4. Annotate the game: blunders (??), mistakes (?), inaccuracies (?!), good moves (!).
 5. For each critical moment, suggest the correct move and explain why.
 6. End with a 2-3 sentence overall summary of both players' play.`,
-            `Analyze the chess game with ID: ${gameId}. Be thorough and cite any theory you find.`
+            `Analyze the chess game with ID: ${gameId}. Be thorough and cite any theory you find.`,
+            "/agent/analyze",
+            gameId
         );
 
         res.json({ analysis: explanation });

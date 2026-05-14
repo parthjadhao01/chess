@@ -71,3 +71,43 @@ model Move {
 
   createdAt DateTime @default(now())
 }
+
+model ConversationSession {
+  id               String            @id @default(uuid())
+  endpoint         String
+  gameId           String?
+  startedAt        DateTime          @default(now())
+  endedAt          DateTime?
+  totalTokens      Int               @default(0)
+  promptTokens     Int               @default(0)
+  completionTokens Int               @default(0)
+  estimatedCostUsd Float             @default(0)
+  modelUsed        String            @default("")
+  logs             ConversationLog[]
+}
+
+model ConversationLog {
+  id             String              @id @default(uuid())
+  sessionId      String
+  session        ConversationSession @relation(fields: [sessionId], references: [id])
+  type           LogType
+  toolName       String?
+  args           Json?
+  result         Json?
+  policyDecision String?
+  policyRuleId   String?
+  policyReason   String?
+  durationMs     Int?
+  createdAt      DateTime            @default(now())
+}
+
+enum LogType {
+  TOOL_CALL
+  POLICY_ALLOW
+  POLICY_BLOCK
+  POLICY_PENDING
+  POLICY_RESOLVED
+  TOOL_RESULT
+  TOOL_ERROR
+  AI_RESPONSE
+}
