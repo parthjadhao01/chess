@@ -12,6 +12,7 @@ COPY packages      ./packages
 
 RUN pnpm install --frozen-lockfile
 
+RUN pnpm --filter @repo/db run db:generate
 RUN pnpm --filter @repo/db run build
 
 RUN pnpm --filter chess-mcp run build

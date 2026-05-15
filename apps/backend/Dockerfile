@@ -10,6 +10,7 @@ COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
 
+RUN pnpm --filter @repo/db run db:generate
 RUN pnpm --filter @repo/db run build
 
 WORKDIR /app/apps/backend
