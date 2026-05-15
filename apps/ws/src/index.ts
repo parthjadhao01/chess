@@ -101,4 +101,5 @@ wss.on("connection", (ws) => {
 });
 
 
-server.listen(4000);
+const WS_PORT = Number(process.env.PORT) || 4000;
+server.listen(WS_PORT, () => console.log(`WS gateway running on port ${WS_PORT}`));

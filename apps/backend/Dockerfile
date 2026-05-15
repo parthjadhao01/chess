@@ -10,6 +10,8 @@ COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
 
+RUN pnpm --filter @repo/db run build
+
 WORKDIR /app/apps/backend
 
-CMD ["pnpm", "run", "dev"]
+CMD ["npx", "tsx", "src/index.ts"]

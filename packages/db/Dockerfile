@@ -11,5 +11,4 @@ RUN pnpm install --frozen-lockfile
 
 WORKDIR /usr/src/app/packages/db
 
-CMD ["pnpm", "run", "db:deploy"]
-CMD ["npx", "prisma", "studio"]
+CMD ["npx", "prisma", "db", "push", "--skip-generate"]

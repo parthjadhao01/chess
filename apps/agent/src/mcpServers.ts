@@ -15,6 +15,7 @@ export const MCP_SERVERS: McpServerConfig[] = [
         name: "chess-mcp",
         command: "node",
         args: [
+            process.env.CHESS_MCP_PATH ??
             path.resolve(__dirname, "../../chess-mcp/build/index.js"),
         ],
         env: {
