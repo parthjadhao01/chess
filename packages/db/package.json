@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "prisma": "prisma",
     "db:push": "prisma db push",
     "db:pull": "prisma db pull",
@@ -12,12 +13,13 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.10",
-    "prisma": "6.3.1"
+    "prisma": "6.3.1",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@prisma/client": "6.19.2"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./dist/index.js"
   }
 }

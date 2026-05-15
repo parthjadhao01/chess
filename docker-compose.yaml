@@ -1,75 +1,11 @@
 services:
-  web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    container_name: chess-frontend
-    image: chess-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_URL_INTERNAL=http://web:3000
-      - NEXTAUTH_SECRET=supersecret
-      - BACKEND_URL=http://backend:3001
 
-  backend:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
-    container_name: chess-backend
-    image: chess-backend
-    depends_on:
-      - postgres
-    ports:
-      - "3001:3001"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_URL_INTERNAL=http://web:3000
-      - NEXTAUTH_SECRET=supersecret
-
-  ws:
-    build:
-      context: .
-      dockerfile: apps/ws/Dockerfile
-    container_name: chess-websocket
-    image : chess-ws
-    depends_on:
-      - postgres
-    ports:
-      - "4000:4000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_URL_INTERNAL=http://web:3000
-      - NEXTAUTH_SECRET=supersecret
-      - REDIS_MOVES=redis://redis:6379
-
-  worker :
-    build :
-      context: .
-      dockerfile: apps/worker/Dockerfile
-    container_name: chess-worker
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
-      - REDIS_MOVES=redis://redis:6379
-
-  redis :
-    image : redis
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+  # ── Infrastructure ────────────────────────────────────────────────────────────
 
   postgres:
     image: postgres:16
-    container_name: postgres
+    container_name: chess-postgres
+    restart: unless-stopped
     ports:
       - "5432:5432"
     volumes:
@@ -78,18 +14,171 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: chess
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: chess-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── One-shot migration (run once, then exit) ──────────────────────────────────
 
   migrate:
     build:
       context: .
       dockerfile: packages/db/Dockerfile
+    container_name: chess-migrate
     depends_on:
-      - postgres
-    ports:
-      - "5555:5555"
+      postgres:
+        condition: service_healthy
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
 
+  # ── Application services ──────────────────────────────────────────────────────
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: chess-backend
+    image: chess-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - REDIS_URL=redis://redis:6379
+      - FRONTEND_ORIGIN=http://localhost:3000
+      - ADMIN_ORIGIN=http://localhost:3003
+      - JWT_SECRET=local-jwt-secret
+      - MCP_SECRET=local-mcp-secret
+      - PORT=3001
+
+  ws:
+    build:
+      context: .
+      dockerfile: apps/ws/Dockerfile
+    container_name: chess-ws
+    image: chess-ws
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL_INTERNAL=http://web:3000
+      - NEXTAUTH_SECRET=local-nextauth-secret
+      - PORT=4000
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    container_name: chess-worker
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - REDIS_MOVES=redis://redis:6379
+
+  agent:
+    build:
+      context: .
+      dockerfile: apps/agent/Dockerfile
+    container_name: chess-agent
+    image: chess-agent
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    ports:
+      - "3002:3002"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-google/gemma-4-26b-a4b-it:free}
+      - BACKEND_URL=http://backend:3001
+      - CHESS_WS_URL=ws://ws:4000
+      - MCP_SECRET=local-mcp-secret
+      - FRONTEND_ORIGIN=http://localhost:3000
+      - REDIS_URL=redis://redis:6379
+      - EXA_API_KEY=${EXA_API_KEY:-}
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - PORT=3002
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: chess-admin
+    image: chess-admin
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3003:3003"
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - JWT_SECRET=local-admin-jwt-secret
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+      - PORT=3003
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: chess-web
+    image: chess-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_started
+      ws:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/chess
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_URL_INTERNAL=http://web:3000
+      - NEXTAUTH_SECRET=local-nextauth-secret
+      - BACKEND_URL=http://backend:3001
+
 volumes:
-  postgres_data :
-  redis_data:
+  postgres_data:
