@@ -453,6 +453,9 @@ importers:
       cookie:
         specifier: ^1.1.1
         version: 1.1.1
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3

@@ -2,10 +2,11 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import { parse } from "cookie";
 import { GameManager } from "./gameManger";
-import jwt from "jsonwebtoken"
 import { db } from "./db";
-import { getToken } from "next-auth/jwt";
+import { decode } from "next-auth/jwt";
 import {clearInterval} from "node:timers";
+import dotenv from "dotenv";
+dotenv.config();
 
 declare module "next-auth" {
     /**
@@ -25,33 +26,29 @@ const wss = new WebSocketServer({ noServer: true });
 const gameManager = new GameManager();
 gameManager.redisConnect();
 
-function getSessionToken(req: any) {
-    console.log("fetcing the cookie")
-
-    const cookies = parse(req.headers.cookie || "");
-    console.log(cookies);
-    return (
-        cookies["token"]
-    );
-}
-
-// async function getUserFromSession(token: string) {
-//     console.log("validating the cookies")
-//     const payload = jwt.verify(token,"password_nextauth")
-//     console.log(payload)
-//     const session = await db.session?.findUnique({
-//         where: { sessionToken: token },
-//         include: { user: true }
-//     });
-//     console.log(session);
-//     return session?.user || null;
-// }
 
 server.on("upgrade", async (req, socket, head) => {
     try{
-        const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET })
+        const cookies = parse(req.headers.cookie || "");
+        const isProduction = process.env.NODE_ENV === "production";
+        const cookieName = isProduction
+            ? "__Secure-next-auth.session-token"
+            : "next-auth.session-token";
+        const rawToken = cookies[cookieName];
+
+        if (!rawToken) {
+            console.log("session not found — no cookie");
+            return;
+        }
+
+        const token = await decode({
+            token: rawToken,
+            secret: process.env.NEXTAUTH_SECRET!,
+        });
+
+        console.log("[WS] decoded token:", token ? `found (id: ${token.id})` : "null");
         if (!token){
-            console.log("session not found");
+            console.log("session not found — decode failed");
             return;
         }
         const user = await db.user.findUnique({
