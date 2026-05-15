@@ -1,7 +1,7 @@
 "use client"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
 
-const WS_URL = "ws://localhost:4000"
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000"
 
 type SocketContextType = {
     socket: WebSocket

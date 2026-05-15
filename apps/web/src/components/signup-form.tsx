@@ -21,8 +21,9 @@ import axios from "axios"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import {signIn} from "next-auth/react";
+import { BACKEND_URL } from "@/config"
 
-const backendURL = "http://localhost:3001"
+const backendURL = BACKEND_URL
 
 export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
 
