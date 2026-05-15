@@ -4,7 +4,7 @@ import { parse } from "cookie";
 import { GameManager } from "./gameManger";
 import jwt from "jsonwebtoken"
 import { db } from "./db";
-import {getSession} from "next-auth/react";
+import { getToken } from "next-auth/jwt";
 import {clearInterval} from "node:timers";
 
 declare module "next-auth" {
@@ -49,14 +49,14 @@ function getSessionToken(req: any) {
 
 server.on("upgrade", async (req, socket, head) => {
     try{
-        const session = await getSession({req})
-        if (!session){
+        const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET })
+        if (!token){
             console.log("session not found");
             return;
         }
         const user = await db.user.findUnique({
             where : {
-                id : session.user?.id
+                id : token.id as string
             }
         })
         if (!user){

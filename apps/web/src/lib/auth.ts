@@ -72,6 +72,18 @@ export const NEXT_AUTH_CONFIG = {
         })
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    cookies: {
+        sessionToken: {
+            name: `next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: "lax",
+                path: "/",
+                secure: process.env.NODE_ENV === "production",
+                domain: process.env.COOKIE_DOMAIN || undefined,
+            },
+        },
+    },
     callbacks: {
         async jwt({user,token } : {user : User, token : JWT}) {
             if (user) {
