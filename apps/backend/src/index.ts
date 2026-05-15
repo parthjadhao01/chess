@@ -15,13 +15,15 @@ app.use(express.json());
 const ALLOWED_ORIGINS = [
     process.env.FRONTEND_ORIGIN || "http://localhost:3000",
     process.env.ADMIN_ORIGIN   || "http://localhost:3003",
+    // Extra comma-separated origins (Railway-generated URLs, staging, etc.)
+    ...(process.env.EXTRA_ORIGINS || "").split(",").map(o => o.trim()).filter(Boolean),
 ];
 
 app.use(cors({
     credentials: true,
     origin: (origin, cb) => {
         if (!origin || ALLOWED_ORIGINS.includes(origin)) cb(null, true);
-        else cb(new Error("Not allowed by CORS"));
+        else cb(new Error(`CORS: origin "${origin}" not allowed`));
     },
 }))
 
