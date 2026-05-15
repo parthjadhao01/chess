@@ -35,20 +35,27 @@ server.on("upgrade", async (req, socket, head) => {
         // Extract token from query param (?token=xxx) — avoids cross-subdomain cookie issues
         const url = new URL(req.url!, `ws://localhost`);
         const queryToken = url.searchParams.get("token");
+        console.log("[WS] req.url:", req.url);
+        console.log("[WS] queryToken present:", !!queryToken);
+        console.log("[WS] NEXTAUTH_SECRET set:", !!process.env.NEXTAUTH_SECRET);
 
         let userId: string | null = null;
 
         if (queryToken) {
-            // Verify the short-lived signed token issued by /api/auth/ws-token
-            const { payload } = await jwtVerify(queryToken, secret);
-            userId = payload.id as string;
+            try {
+                const { payload } = await jwtVerify(queryToken, secret);
+                userId = payload.id as string;
+                console.log("[WS] jwtVerify success, userId:", userId);
+            } catch (err) {
+                console.log("[WS] jwtVerify failed:", err);
+            }
         } else {
-            // Fallback: try cookie-based auth (works for same-domain local dev)
             const cookies = parse(req.headers.cookie || "");
             const cookieName = process.env.NODE_ENV === "production"
                 ? "__Secure-next-auth.session-token"
                 : "next-auth.session-token";
             const rawToken = cookies[cookieName];
+            console.log("[WS] cookie fallback, rawToken present:", !!rawToken);
             if (rawToken) {
                 const decoded = await decode({ token: rawToken, secret: process.env.NEXTAUTH_SECRET! });
                 userId = decoded?.id as string ?? null;
