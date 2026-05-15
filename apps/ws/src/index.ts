@@ -4,6 +4,7 @@ import { parse } from "cookie";
 import { GameManager } from "./gameManger";
 import { db } from "./db";
 import { decode } from "next-auth/jwt";
+import { jwtVerify } from "jose";
 import {clearInterval} from "node:timers";
 import dotenv from "dotenv";
 dotenv.config();
@@ -29,32 +30,38 @@ gameManager.redisConnect();
 
 server.on("upgrade", async (req, socket, head) => {
     try{
-        const cookies = parse(req.headers.cookie || "");
-        const isProduction = process.env.NODE_ENV === "production";
-        const cookieName = isProduction
-            ? "__Secure-next-auth.session-token"
-            : "next-auth.session-token";
-        const rawToken = cookies[cookieName];
+        const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!);
 
-        if (!rawToken) {
-            console.log("session not found — no cookie");
-            return;
-        }
+        // Extract token from query param (?token=xxx) — avoids cross-subdomain cookie issues
+        const url = new URL(req.url!, `ws://localhost`);
+        const queryToken = url.searchParams.get("token");
 
-        const token = await decode({
-            token: rawToken,
-            secret: process.env.NEXTAUTH_SECRET!,
-        });
+        let userId: string | null = null;
 
-        console.log("[WS] decoded token:", token ? `found (id: ${token.id})` : "null");
-        if (!token){
-            console.log("session not found — decode failed");
-            return;
-        }
-        const user = await db.user.findUnique({
-            where : {
-                id : token.id as string
+        if (queryToken) {
+            // Verify the short-lived signed token issued by /api/auth/ws-token
+            const { payload } = await jwtVerify(queryToken, secret);
+            userId = payload.id as string;
+        } else {
+            // Fallback: try cookie-based auth (works for same-domain local dev)
+            const cookies = parse(req.headers.cookie || "");
+            const cookieName = process.env.NODE_ENV === "production"
+                ? "__Secure-next-auth.session-token"
+                : "next-auth.session-token";
+            const rawToken = cookies[cookieName];
+            if (rawToken) {
+                const decoded = await decode({ token: rawToken, secret: process.env.NEXTAUTH_SECRET! });
+                userId = decoded?.id as string ?? null;
             }
+        }
+
+        if (!userId) {
+            console.log("session not found");
+            return;
+        }
+
+        const user = await db.user.findUnique({
+            where : { id: userId }
         })
         if (!user){
             console.log("user not found")

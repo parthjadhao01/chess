@@ -322,6 +322,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      jose:
+        specifier: ^6.2.3
+        version: 6.2.3
       lucid:
         specifier: ^2.21.0
         version: 2.21.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -456,6 +459,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      jose:
+        specifier: ^6.2.3
+        version: 6.2.3
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3

@@ -15,8 +15,17 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const [socket, setSocket] = useState<WebSocket | null>(null)
     const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting")
 
-    const connect = () => {
-        const ws = new WebSocket(WS_URL)
+    const connect = async () => {
+        let url = WS_URL
+        try {
+            const res = await fetch("/api/auth/ws-token")
+            if (res.ok) {
+                const { token } = await res.json()
+                url = `${WS_URL}?token=${token}`
+            }
+        } catch { /* use url without token, ws server will reject */ }
+
+        const ws = new WebSocket(url)
         socketRef.current = ws
 
         ws.onopen = () => {
