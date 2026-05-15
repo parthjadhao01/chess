@@ -1,19 +1,18 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from "next-auth/providers/google";
 import axios from "axios";
-import {BACKEND_URL} from "@/config";
-import {DefaultSession, Session, User} from "next-auth"
-import {DefaultJWT, JWT} from "next-auth/jwt"
+import type { Session, User } from "next-auth"
+import type { JWT } from "next-auth/jwt"
 
 declare module "next-auth" {
-    /**
-     * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-     */
     interface Session {
         user: {
             id: string
             username: string
-        } & DefaultSession["user"]
+            name?: string | null
+            email?: string | null
+            image?: string | null
+        }
     }
 
     interface User {
@@ -23,7 +22,7 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
-    interface JWT extends DefaultJWT {
+    interface JWT {
         id: string
         username: string
     }
@@ -72,18 +71,6 @@ export const NEXT_AUTH_CONFIG = {
         })
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    cookies: {
-        sessionToken: {
-            name: `next-auth.session-token`,
-            options: {
-                httpOnly: true,
-                sameSite: "lax",
-                path: "/",
-                secure: process.env.NODE_ENV === "production",
-                domain: process.env.COOKIE_DOMAIN || undefined,
-            },
-        },
-    },
     callbacks: {
         async jwt({user,token } : {user : User, token : JWT}) {
             if (user) {
