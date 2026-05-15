@@ -35,9 +35,6 @@ server.on("upgrade", async (req, socket, head) => {
         // Extract token from query param (?token=xxx) — avoids cross-subdomain cookie issues
         const url = new URL(req.url!, `ws://localhost`);
         const queryToken = url.searchParams.get("token");
-        console.log("[WS] req.url:", req.url);
-        console.log("[WS] queryToken present:", !!queryToken);
-        console.log("[WS] NEXTAUTH_SECRET set:", !!process.env.NEXTAUTH_SECRET);
 
         let userId: string | null = null;
 
@@ -45,17 +42,16 @@ server.on("upgrade", async (req, socket, head) => {
             try {
                 const { payload } = await jwtVerify(queryToken, secret);
                 userId = payload.id as string;
-                console.log("[WS] jwtVerify success, userId:", userId);
-            } catch (err) {
-                console.log("[WS] jwtVerify failed:", err);
+            } catch {
+                console.log("[WS] token verification failed");
             }
         } else {
+            // Fallback: cookie-based auth for local dev (same domain)
             const cookies = parse(req.headers.cookie || "");
             const cookieName = process.env.NODE_ENV === "production"
                 ? "__Secure-next-auth.session-token"
                 : "next-auth.session-token";
             const rawToken = cookies[cookieName];
-            console.log("[WS] cookie fallback, rawToken present:", !!rawToken);
             if (rawToken) {
                 const decoded = await decode({ token: rawToken, secret: process.env.NEXTAUTH_SECRET! });
                 userId = decoded?.id as string ?? null;
@@ -64,6 +60,8 @@ server.on("upgrade", async (req, socket, head) => {
 
         if (!userId) {
             console.log("session not found");
+            socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+            socket.destroy();
             return;
         }
 
@@ -103,7 +101,7 @@ wss.on("connection", (ws) => {
         }
         isAlive = false;
         ws.ping();
-    },3000)
+    },30000)
 
     ws.on("close", () => {
         clearInterval(heartBeat);

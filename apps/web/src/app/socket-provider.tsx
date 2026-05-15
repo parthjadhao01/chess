@@ -42,16 +42,18 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
             setStatus("disconnected")
             setSocket(null)
             socketRef.current = null
-            // auto reconnect after 2 seconds
-            setTimeout(connect, 2000)
+            // Don't reconnect on auth failure (401) — user needs to log in again
+            if (event.code === 4001) return;
+            // Auto reconnect after 3 seconds for other disconnections
+            setTimeout(connect, 3000)
         }
 
         ws.onerror = () => {
-            ws.close() // triggers onclose which handles reconnect
+            ws.close()
         }
     }
 
