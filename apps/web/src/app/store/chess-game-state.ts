@@ -43,11 +43,14 @@ export const useChessStore = create<ChessState>((set,get)=>({
     gameAnalysis : null,
 
     startNewGame : (gameId : string,color : string) => {
+        const chess = new Chess();
         set({
-            chess : new Chess(),
-            gameId : gameId,
-            board : get().chess.board(),
-            color : color,
+            chess,
+            gameId,
+            board : chess.board(),
+            color,
+            moves : [],
+            gameOver : false,
             isAiGame : false,
             aiMoveExplanation : null,
             gameAnalysis : null,
@@ -85,15 +88,15 @@ export const useChessStore = create<ChessState>((set,get)=>({
         }))
     },
 
-    reconnect : (fen: string ,moves, color) => {
-        const chess = get().chess
+    reconnect : (fen: string, moves, color) => {
+        const chess = new Chess();
         chess.load(fen)
-        const board = chess.board()
         set({
-            chess : chess,
-            moves : moves,
-            board : board,
-            color : color
+            chess,
+            moves,
+            board : chess.board(),
+            color,
+            gameOver : false,
         })
     },
 

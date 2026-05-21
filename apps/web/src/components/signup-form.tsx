@@ -1,185 +1,194 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel, FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { useState } from "react"
-import axios from "axios"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import {signIn} from "next-auth/react";
-import { BACKEND_URL } from "@/config"
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff, ArrowRight, Users, Shield, Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import axios from "axios";
+import { BACKEND_URL } from "@/config";
 
-const backendURL = BACKEND_URL
+export function SignupForm() {
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    const router = useRouter()
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [loading, setLoading] = useState(false)
-
-    const onSubmit = async () => {
-        if (!username || !password || !confirmPassword) {
-            toast.error("All fields are required")
-            return
-        }
-
-        if (password.length < 8) {
-            toast.error("Password must be at least 8 characters")
-            return
-        }
-
-        if (password !== confirmPassword) {
-            toast.error("Passwords do not match")
-            return
-        }
-
-        try {
-            setLoading(true)
-
-            const response = await axios.post(
-                `${backendURL}/api/signup`,
-                {
-                    username,
-                    password,
-                },
-            )
-
-            toast.success(response.data.message)
-            router.push("/play")
-        } catch (error: unknown) { // 'error' is unknown
-            if (error instanceof Error) {
-                console.error('Error message:', error.message);
-            } else {
-                console.error('An unknown error occurred');
-            }
-        } finally {
-            setLoading(false)
-        }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
     }
 
-    return (
-        <div className={cn("flex flex-col gap-6", className)} {...props}>
-            <Card>
-                <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Create your account</CardTitle>
-                    <CardDescription>
-                        Enter your username and password to sign up
-                    </CardDescription>
-                </CardHeader>
+    try {
+      setLoading(true);
+      const response = await axios.post(`${BACKEND_URL}/api/signup`, { username, password });
+      toast.success(response.data.message);
+      router.push("/play");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message ?? "Something went wrong");
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <CardContent>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault()
-                            onSubmit()
-                        }}
-                    >
-                        <FieldGroup>
-                            <Field>
-                                <FieldLabel htmlFor="username">Username</FieldLabel>
-                                <Input
-                                    id="username"
-                                    type="text"
-                                    placeholder="parthjadhao"
-                                    required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
-                            </Field>
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/[0.02] rounded-full blur-3xl" />
 
-                            <Field className="grid grid-cols-2 gap-4">
-                                <Field>
-                                    <FieldLabel htmlFor="password">Password</FieldLabel>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                </Field>
-
-                                <Field>
-                                    <FieldLabel htmlFor="confirm-password">
-                                        Confirm Password
-                                    </FieldLabel>
-                                    <Input
-                                        id="confirm-password"
-                                        type="password"
-                                        required
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                    />
-                                </Field>
-                            </Field>
-
-                            <FieldDescription>
-                                Must be at least 8 characters long
-                            </FieldDescription>
-
-                            <Field>
-                                <Button
-                                    type="submit"
-                                    className="w-full"
-                                    disabled={loading}
-                                >
-                                    {loading ? "Creating account..." : "Create Account"}
-                                </Button>
-
-                                <FieldDescription className="text-center">
-                                    Already have an account?{" "}
-                                    <a href="/login" className="underline">
-                                        Sign in
-                                    </a>
-                                </FieldDescription>
-
-                            </Field>
-                            <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                                Or continue with
-                            </FieldSeparator>
-                        </FieldGroup>
-
-                        <Button
-                            className={cn("w-full mt-5")}
-                            variant="outline"
-                            type="button"
-                            onClick={async ()=> {
-                                await signIn("google")
-                            }}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path
-                                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                                    fill="currentColor"
-                                />
-                            </svg>
-                            Sign up with Google
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            <FieldDescription className="px-6 text-center">
-                By clicking continue, you agree to our{" "}
-                <a href="#">Terms of Service</a> and{" "}
-                <a href="#">Privacy Policy</a>.
-            </FieldDescription>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-sm z-10"
+      >
+        {/* Logo */}
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-flex flex-col items-center gap-3 group">
+            <span className="text-white text-4xl leading-none drop-shadow-[0_0_12px_rgba(255,255,255,0.4)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.6)] transition-all duration-300">♞</span>
+            <span className="text-lg font-semibold text-white tracking-tight">chess</span>
+          </Link>
         </div>
-    )
+
+        {/* Card */}
+        <div className="rounded-xl border border-[#222] bg-[#111] p-8 shadow-2xl">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-white tracking-tight">Create an account</h1>
+            <p className="text-sm text-white/40 mt-1">Join thousands of players improving with AI</p>
+          </div>
+
+          {/* Feature hints */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            {[
+              { icon: Users, label: 'Community' },
+              { icon: Shield, label: 'Secure' },
+              { icon: Zap, label: 'Fast' },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center gap-1.5 p-2 rounded-lg bg-white/[0.02] border border-white/5">
+                <item.icon className="w-4 h-4 text-white/30" />
+                <span className="text-[10px] text-white/30 uppercase tracking-wider">{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/60" htmlFor="username">
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="your username"
+                className="w-full px-4 py-2.5 rounded-lg bg-[#0a0a0a] border border-[#222] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-white/10 transition-all"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/60" htmlFor="password">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 pr-10 rounded-lg bg-[#0a0a0a] border border-[#222] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-white/10 transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-white/20">Must be at least 8 characters</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/60" htmlFor="confirm-password">
+                Confirm password
+              </label>
+              <div className="relative">
+                <input
+                  id="confirm-password"
+                  type={showConfirm ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-2.5 pr-10 rounded-lg bg-[#0a0a0a] border border-[#222] text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-white/10 transition-all"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/40 transition-colors"
+                >
+                  {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              className="w-full py-2.5 bg-white text-[#0a0a0a] rounded-lg font-medium text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <div className="w-4 h-4 border-2 border-[#0a0a0a]/20 border-t-[#0a0a0a] rounded-full animate-spin" />
+              ) : (
+                <>
+                  Create account
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </motion.button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-white/30">
+            Already have an account?{' '}
+            <Link href="/login" className="text-white/60 hover:text-white transition-colors font-medium">
+              Sign in
+            </Link>
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-white/20">
+            By signing up, you agree to our{' '}
+            <Link href="#" className="hover:text-white/40 transition-colors">Terms</Link>
+            {' '}and{' '}
+            <Link href="#" className="hover:text-white/40 transition-colors">Privacy Policy</Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
 }

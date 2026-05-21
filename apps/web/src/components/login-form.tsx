@@ -51,14 +51,9 @@ export function LoginForm() {
       >
         {/* Logo */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center shadow-lg shadow-white/10 group-hover:shadow-white/20 transition-shadow">
-              <span className="text-[#0a0a0a] text-xl font-bold">♔</span>
-            </div>
-            <div className="text-left">
-              <span className="block text-lg font-semibold text-white tracking-tight">chess-ai</span>
-              <span className="block text-xs text-white/40">The chess platform for the AI era</span>
-            </div>
+          <Link href="/" className="inline-flex flex-col items-center gap-3 group">
+            <span className="text-white text-4xl leading-none drop-shadow-[0_0_12px_rgba(255,255,255,0.4)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.6)] transition-all duration-300">♞</span>
+            <span className="text-lg font-semibold text-white tracking-tight">chess</span>
           </Link>
         </div>
 
