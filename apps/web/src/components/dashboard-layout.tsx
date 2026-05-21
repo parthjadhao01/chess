@@ -23,18 +23,18 @@ import {
 
 const navItems = [
   {
-    label: 'Play with AI Coach',
-    href: '/ai-coach',
-    icon: Brain,
-    description: 'Train with Claude',
-    badge: 'NEW',
-  },
-  {
     label: 'Play Online',
     href: '/play',
     icon: Users,
     description: 'Match with players',
     badge: null,
+  },
+  {
+    label: 'Play with AI Coach',
+    href: '/ai-coach',
+    icon: Brain,
+    description: 'Train with Claude',
+    badge: 'NEW',
   },
   {
     label: 'Live Matches',
@@ -67,7 +67,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     navItems.find((item) => isActive(item.href))?.label ?? 'Overview';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex">
+    <div className="h-screen bg-[#0a0a0a] text-white flex overflow-hidden">
       {/* Mobile overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -92,11 +92,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           className={`h-16 flex items-center border-b border-[#222] ${isSidebarOpen ? 'px-4' : 'px-3 justify-center'}`}
         >
           <Link href="/play" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-md bg-white flex items-center justify-center flex-shrink-0">
-              <span className="text-[#0a0a0a] text-lg font-bold">♔</span>
-            </div>
+            <span className="text-white text-3xl leading-none flex-shrink-0 drop-shadow-[0_0_10px_rgba(255,255,255,0.35)]">♞</span>
             {isSidebarOpen && (
-              <span className="font-semibold tracking-tight text-sm">chess-ai</span>
+              <span className="font-semibold tracking-tight text-sm">chess</span>
             )}
           </Link>
           {isSidebarOpen && (
@@ -250,7 +248,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Top Header */}
         <header className="h-16 border-b border-[#222] bg-[#0a0a0a]/80 backdrop-blur-xl flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
           <div className="flex items-center gap-4">
