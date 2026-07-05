@@ -16,6 +16,16 @@ import { useChessStore } from "@/app/store/chess-game-state";
 import { useRouter } from "next/navigation";
 import { useSocket } from "@/app/socket-provider";
 import { LoadingSpinner } from "@/app/play/loading-spinner";
+import { useSession } from "next-auth/react";
+import { BACKEND_URL } from "@/config";
+
+type RecentGame = {
+  gameId: string;
+  opponent: { id: string; username: string };
+  result: "win" | "loss" | "draw" | "unknown";
+  moves: number;
+  playedAt: string;
+};
 
 const SearchingDots = () => (
   <div className="flex gap-1">
@@ -42,11 +52,14 @@ export default function PlayPage() {
   const router = useRouter();
   const { socket, status: socketStatus } = useSocket();
   const startNewGame = useChessStore((state) => state.startNewGame);
+  const { data: session } = useSession();
 
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [searchTime, setSearchTime] = useState(0);
   const [showDisconnectCard, setShowDisconnectCard] = useState(false);
   const [disconnectTimer, setDisconnectTimer] = useState(300);
+  const [recentGames, setRecentGames] = useState<RecentGame[]>([]);
+  const [loadingGames, setLoadingGames] = useState(false);
 
   useEffect(() => {
     if (!showDisconnectCard) return;
@@ -80,6 +93,16 @@ export default function PlayPage() {
     socket.addEventListener("message", handler);
     return () => socket.removeEventListener("message", handler);
   }, [socket, socketStatus, startNewGame, router]);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    setLoadingGames(true);
+    fetch(`${BACKEND_URL}/api/users/${session.user.id}/recent-games`)
+      .then(r => r.json())
+      .then(data => setRecentGames(data.games ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingGames(false));
+  }, [session?.user?.id]);
 
   const handlePlay = () => { socket?.send(JSON.stringify({ type: INIT_GAME })); setGameStatus('searching'); setSearchTime(0); };
   const handleCancel = () => { setGameStatus('idle'); setSearchTime(0); };
@@ -241,30 +264,48 @@ export default function PlayPage() {
             </Link>
           </div>
           <div className="flex-1 divide-y divide-[#222] overflow-y-auto">
-            {[
-              { name: 'Alex_Chess', result: 'win', rating: 1823, time: 'Today, 2:45 PM', moves: 34 },
-              { name: 'ProPlayer_22', result: 'loss', rating: 1956, time: 'Yesterday, 5:12 PM', moves: 28 },
-              { name: 'King_Master', result: 'win', rating: 1701, time: 'Jan 28, 11:20 AM', moves: 41 },
-              { name: 'DragonSlayer', result: 'win', rating: 1634, time: 'Jan 27, 3:10 PM', moves: 52 },
-              { name: 'SilentBishop', result: 'loss', rating: 2034, time: 'Jan 26, 9:00 AM', moves: 22 },
-            ].map((game, i) => (
-              <div key={i} className="flex items-center gap-4 px-4 py-3 hover:bg-white/[0.02] transition-colors">
-                <div className={`w-2 h-2 rounded-full shrink-0 ${game.result === 'win' ? 'bg-emerald-400' : 'bg-red-400'}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-white/70">{game.name}</span>
-                    <span className="text-xs text-white/20">({game.rating})</span>
+            {loadingGames && (
+              <div className="flex items-center justify-center py-10 text-white/20 text-sm">Loading…</div>
+            )}
+            {!loadingGames && recentGames.length === 0 && (
+              <div className="flex items-center justify-center py-10 text-white/20 text-sm">No finished games yet</div>
+            )}
+            {!loadingGames && recentGames.map((game) => {
+              const resultColor =
+                game.result === 'win' ? 'bg-emerald-400' :
+                game.result === 'loss' ? 'bg-red-400' : 'bg-white/20';
+              const badgeStyle =
+                game.result === 'win' ? 'bg-emerald-500/10 text-emerald-400' :
+                game.result === 'loss' ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-white/30';
+              const badgeLabel =
+                game.result === 'win' ? 'Victory' :
+                game.result === 'loss' ? 'Defeat' :
+                game.result === 'draw' ? 'Draw' : '—';
+              const date = new Date(game.playedAt).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+              });
+              return (
+                <div key={game.gameId} className="flex items-center gap-4 px-4 py-3 hover:bg-white/2 transition-colors">
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${resultColor}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-white/70">{game.opponent.username}</span>
+                    </div>
+                    <div className="text-xs text-white/20 mt-0.5">{game.moves} moves · {date}</div>
                   </div>
-                  <div className="text-xs text-white/20 mt-0.5">{game.moves} moves · {game.time}</div>
+                  <div className={`px-2 py-1 rounded text-xs font-medium ${badgeStyle}`}>
+                    {badgeLabel}
+                  </div>
+                  <Link
+                    href={`/ai-coach/${game.gameId}`}
+                    className="p-1.5 rounded hover:bg-white/5 text-white/20 hover:text-white/40 transition-colors"
+                    title="Analyze with AI"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </Link>
                 </div>
-                <div className={`px-2 py-1 rounded text-xs font-medium ${game.result === 'win' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                  {game.result === 'win' ? 'Victory' : 'Defeat'}
-                </div>
-                <button className="p-1.5 rounded hover:bg-white/5 text-white/20 hover:text-white/40 transition-colors">
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </motion.div>
       </div>

@@ -98,6 +98,51 @@ function resolveFen(boardFen: string) {
     return boardFen === "startpos" ? INITIAL_FEN : boardFen;
 }
 
+app.get("/api/users/:userId/recent-games", async (req, res) => {
+    const { userId } = req.params;
+    const games = await db.game.findMany({
+        where: {
+            status: "FINISHED",
+            OR: [{ player1Id: userId }, { player2Id: userId }]
+        },
+        include: {
+            player1: { select: { id: true, username: true } },
+            player2: { select: { id: true, username: true } },
+            _count: { select: { moves: true } }
+        },
+        orderBy: { updatedAt: "desc" },
+        take: 10
+    });
+
+    const result = games.map(game => {
+        const isPlayer1 = game.player1Id === userId;
+        const opponent = isPlayer1 ? game.player2 : game.player1;
+
+        let outcome: "win" | "loss" | "draw" | "unknown" = "unknown";
+        try {
+            const chess = new Chess(resolveFen(game.boardFen));
+            if (chess.isCheckmate()) {
+                // the player whose turn it is got checkmated — they lost
+                const loserIsWhite = chess.turn() === "w";
+                const userIsWhite = isPlayer1; // player1 always plays white
+                outcome = loserIsWhite === userIsWhite ? "loss" : "win";
+            } else if (chess.isDraw()) {
+                outcome = "draw";
+            }
+        } catch {}
+
+        return {
+            gameId: game.id,
+            opponent: { id: opponent.id, username: opponent.username },
+            result: outcome,
+            moves: game._count.moves,
+            playedAt: game.updatedAt
+        };
+    });
+
+    res.json({ games: result });
+});
+
 app.get("/games/:gameId/fen", async (req,res)=>{
         const {gameId} = req.params as {gameId? : string};
         const game = await db.game.findUnique({
@@ -136,8 +181,10 @@ app.get("/games/:gameId/moves", async (req,res)=>{
 app.get("/games/:gameId/state", async (req ,res)=>{
     const {gameId} = req.params as {gameId? : string};
     const game = await db.game.findUnique({
-        where : {
-            id : gameId
+        where : { id : gameId },
+        include : {
+            player1 : { select : { id: true, username : true } },
+            player2 : { select : { id: true, username : true } },
         }
     })
     if(!game){
@@ -152,7 +199,7 @@ app.get("/games/:gameId/state", async (req ,res)=>{
     res.json({
         game,
         moves,
-        turn: chess.turn(),           // 'w' or 'b'
+        turn: chess.turn(),
         inCheck: chess.inCheck(),
         isCheckmate: chess.isCheckmate(),
         isDraw: chess.isDraw(),
