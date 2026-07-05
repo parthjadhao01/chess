@@ -153,7 +153,7 @@ export default function GamePage() {
                                 <div>
                                     <p className="text-xs text-muted-foreground">Opponent · {color === "white" ? "Black" : "White"}</p>
                                     <p className="text-base font-semibold text-foreground">
-                                        {isAiGame ? "Claude AI" : (opponentName ?? "Opponent")}
+                                        {isAiGame ? "AI" : (opponentName ?? "Opponent")}
                                     </p>
                                 </div>
                             </div>
