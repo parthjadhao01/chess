@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Eye, EyeOff, ArrowRight, Users, Shield, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { toast } from "sonner";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
@@ -32,9 +33,14 @@ export function SignupForm() {
 
     try {
       setLoading(true);
-      const response = await axios.post(`${BACKEND_URL}/api/signup`, { username, password });
-      toast.success(response.data.message);
-      router.push("/play");
+      await axios.post(`${BACKEND_URL}/api/signup`, { username, password });
+      const result = await signIn("credentials", { username, password, redirect: false });
+      if (result?.ok) {
+        router.push("/play");
+      } else {
+        toast.success("Account created! Please log in.");
+        router.push("/login");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message ?? "Something went wrong");
