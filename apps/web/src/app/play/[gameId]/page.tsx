@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import {useSocket} from "@/app/socket-provider";
 import {useParams, useSearchParams} from "next/navigation";
 import {useChessStore} from "@/app/store/chess-game-state";
-import { AGENT_URL } from "@/config";
+import { AGENT_URL, BACKEND_URL } from "@/config";
+import { useSession } from "next-auth/react";
 
 export default function GamePage() {
     const {gameId} = useParams<{gameId : string}>()
@@ -16,8 +17,10 @@ export default function GamePage() {
     const isAiParam = searchParams.get("ai") === "1";
 
     const {socket,status} = useSocket();
+    const { data: session } = useSession();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [opponentName, setOpponentName] = useState<string | null>(null);
 
     const {
         reconnect,
@@ -25,6 +28,7 @@ export default function GamePage() {
         startAiGame,
         moves,
         gameOver,
+        color,
         isAiThinking,
         aiMoveExplanation,
         gameAnalysis,
@@ -39,6 +43,20 @@ export default function GamePage() {
             startAiGame(gameId);
         }
     }, [isAiParam, isAiGame, gameId, startAiGame]);
+
+    // Fetch opponent name from game state
+    useEffect(() => {
+        if (!gameId || !session?.user?.id || isAiGame) return;
+        fetch(`${BACKEND_URL}/games/${gameId}/state`)
+            .then(r => r.json())
+            .then(data => {
+                const game = data.game;
+                if (!game) return;
+                const opponent = game.player1Id === session.user.id ? game.player2 : game.player1;
+                if (opponent?.username) setOpponentName(opponent.username);
+            })
+            .catch(() => {});
+    }, [gameId, session?.user?.id, isAiGame]);
 
     // Reconnect WebSocket when connected
     useEffect(() => {
@@ -128,11 +146,16 @@ export default function GamePage() {
                     <div className="lg:col-span-2">
                         {/* Opponent Info */}
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50 mb-2">
-                            <div>
-                                <p className="text-xs text-muted-foreground">Opponent</p>
-                                <p className="text-lg font-semibold text-foreground">
-                                    {isAiGame ? "LLM" : "Opponent"}
-                                </p>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-foreground/10 flex items-center justify-center text-sm font-bold text-foreground/60">
+                                    {isAiGame ? "AI" : (opponentName?.[0]?.toUpperCase() ?? "?")}
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground">Opponent · {color === "white" ? "Black" : "White"}</p>
+                                    <p className="text-base font-semibold text-foreground">
+                                        {isAiGame ? "AI" : (opponentName ?? "Opponent")}
+                                    </p>
+                                </div>
                             </div>
                             {isAiGame && isAiThinking && (
                                 <span className="text-xs text-violet-400 animate-pulse">Thinking...</span>
@@ -146,9 +169,16 @@ export default function GamePage() {
 
                         {/* Your Info */}
                         <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-card/50">
-                            <div>
-                                <p className="text-xs text-muted-foreground">You</p>
-                                <p className="text-lg font-semibold text-foreground">You</p>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400">
+                                    {session?.user?.username?.[0]?.toUpperCase() ?? "Y"}
+                                </div>
+                                <div>
+                                    <p className="text-xs text-muted-foreground">You · {color === "white" ? "White" : "Black"}</p>
+                                    <p className="text-base font-semibold text-foreground">
+                                        {session?.user?.username ?? "You"}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
