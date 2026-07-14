@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
 import {Chess} from "chess.js";
-import {GAME_OVER, INIT_GAME, MOVES} from "./messages";
+import {CLOCK, GAME_OVER, INIT_GAME, MOVES} from "./messages";
+import {Clock, PlayerColor} from "./timer";
 
 interface player {
     playerId : string;
@@ -8,6 +9,7 @@ interface player {
 }
 
 export class Game {
+
     public player1 : player;
     public player2 : player;
     public GAME_ID : string;
@@ -19,8 +21,24 @@ export class Game {
     }[];
     private startTime : Date;
     private moveCount = 0;
+    private clock : Clock;
+    private redis : any;
+    private gameEnded = false;
 
-    constructor(player1 : WebSocket,player2 : WebSocket,GAME_ID : string,player1Id : string, player2Id : string) {
+    TEN_MINUTES = 10 * 60; // 10 minutes in seconds
+
+    // `initialTimes` lets a game reconstructed from the DB (see gameManger.ts
+    // handleDbReconnect) resume with an approximation of the time already
+    // consumed, instead of resetting both clocks to a fresh 10 minutes.
+    constructor(
+        player1 : WebSocket,
+        player2 : WebSocket,
+        GAME_ID : string,
+        player1Id : string,
+        player2Id : string,
+        redis : any,
+        initialTimes? : { white : number, black : number },
+    ) {
         this.player1 = {
             playerId : player1Id,
             Websocket : player1,
@@ -33,6 +51,7 @@ export class Game {
         this.moves = [];
         this.startTime = new Date();
         this.GAME_ID = GAME_ID;
+        this.redis = redis;
 
         if (this.player1 && this.player1.Websocket){
             this.player1.Websocket.send(JSON.stringify({
@@ -53,9 +72,69 @@ export class Game {
             }))
         }
 
+        this.clock = new Clock(
+            (color) => this.handleFlag(color),
+            initialTimes?.white ?? this.TEN_MINUTES,
+            initialTimes?.black ?? this.TEN_MINUTES,
+        );
+        // Not started here: moveCount is only correct for a fresh game (0 = white
+        // to move). For DB-reconstructed games the caller replays moves via
+        // applyMove() after construction, then calls startClockForCurrentTurn().
+    }
+
+    // Starts the clock for whichever color's turn it currently is, based on
+    // moveCount. Call once after construction (fresh game) or once after
+    // replaying past moves (reconnect-from-DB).
+    public startClockForCurrentTurn() {
+        const toMove : PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
+        this.clock.start(toMove);
+        this.broadcastClock(toMove);
+    }
+
+    // Pushes the authoritative remaining time to both players. Called on setup
+    // and after every processed move so the client never has to compute time on
+    // its own — it just renders whatever the server last sent.
+    private broadcastClock(turn : PlayerColor) {
+        const times = this.clock.snapshot();
+        const payload = JSON.stringify({
+            type : CLOCK,
+            payload : { white : times.white, black : times.black, turn }
+        });
+        this.player1.Websocket?.send(payload);
+        this.player2.Websocket?.send(payload);
+    }
+
+    private async handleFlag(color : PlayerColor) {
+        if (this.gameEnded) return;
+        this.gameEnded = true;
+        this.clock.stop();
+
+        const lostPlayer = color === "white" ? this.player1 : this.player2;
+        const wonPlayer = color === "white" ? this.player2 : this.player1;
+
+        lostPlayer.Websocket?.send(JSON.stringify({
+            type : GAME_OVER,
+            payload : { message : "loss", reason : "timeout" }
+        }));
+        wonPlayer.Websocket?.send(JSON.stringify({
+            type : GAME_OVER,
+            payload : { message : "win", reason : "timeout" }
+        }));
+
+        if (this.redis) {
+            await this.redis.lPush("moves", JSON.stringify({
+                type : "game_over",
+                gameId : this.GAME_ID,
+                reason : "timeout"
+            }));
+        }
     }
 
     public async gameResign(resignPlayerWebsocket : WebSocket ,redis : any){
+        if (this.gameEnded) return;
+        this.gameEnded = true;
+        this.clock.stop();
+
         const resignPlayer = resignPlayerWebsocket;
         const opponentPlayer = resignPlayerWebsocket === this.player1.Websocket ? this.player2 : this.player1;
         resignPlayer.send(JSON.stringify({
@@ -78,9 +157,9 @@ export class Game {
             gameId: this.GAME_ID,
             reason: "resignation"
         }))
-        
+
     }
-    
+
     public async reconnect(socket : WebSocket,userId : string){
         if (this.player1.playerId === userId){
             this.player1.Websocket = socket as WebSocket;
@@ -92,14 +171,14 @@ export class Game {
             payload : {
                 fen : this.board.fen(),
                 moves : this.moves,
-                color : this.player1.playerId === userId ? "white" : "black"
+                color : this.player1.playerId === userId ? "white" : "black",
+                clock : this.clock.snapshot()
             }
         }))
     }
 
     public applyMove(move: { from: string; to: string }) {
         this.board.move(move);
-
         this.moves.push({
             from: move.from,
             to: move.to,
@@ -110,6 +189,12 @@ export class Game {
     }
 
     public async makeMoveById(move : {from : string, to : string}, redis : any, playerId?: string){
+        if (this.gameEnded) return;
+
+        const effectivePlayerId = playerId ?? this.player2.playerId;
+        const moverColor : PlayerColor = effectivePlayerId === this.player1.playerId ? "white" : "black";
+        const nextColor : PlayerColor = moverColor === "white" ? "black" : "white";
+
         try {
             this.applyMove(move);
         } catch (error) {
@@ -119,13 +204,19 @@ export class Game {
         this.player1.Websocket?.send(payload);
         this.player2.Websocket?.send(payload);
 
+        const paused = this.clock.pause();
+        this.clock.start(nextColor);
+        this.broadcastClock(nextColor);
+
         await redis.lPush("moves",JSON.stringify({
             type : "move",
             gameId: this.GAME_ID,
             fen : this.board.fen(),
-            playerId: playerId ?? this.player2.playerId,
+            playerId: effectivePlayerId,
             from: move.from,
             to: move.to,
+            remainingSeconds: paused?.remainingSeconds ?? null,
+            elapsedSeconds: paused?.elapsedSeconds ?? null,
             moveNo: this.moveCount - 1
         }))
     }
@@ -134,11 +225,14 @@ export class Game {
         from : string,
         to : string
     }, userId: string , redis : any) {
+        if (this.gameEnded) return;
         if (this.moveCount % 2 === 0 && socket !== this.player1.Websocket) return;
         if (this.moveCount % 2 === 1 && socket !== this.player2.Websocket) return;
 
         const opponent =
             this.moveCount % 2 === 0 ? this.player2 : this.player1;
+        const moverColor : PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
+        const nextColor : PlayerColor = moverColor === "white" ? "black" : "white";
 
         try {
             this.applyMove(move);
@@ -151,6 +245,13 @@ export class Game {
             payload: move
         }));
 
+        // pause() always pauses whichever color is currently running — since the
+        // clock is kept in sync with moveCount on every move, that's guaranteed
+        // to be moverColor, so there's no separate color argument to get backwards.
+        const paused = this.clock.pause();
+        this.clock.start(nextColor);
+        this.broadcastClock(nextColor);
+
         await redis.lPush("moves",JSON.stringify({
             type : "move",
             gameId: this.GAME_ID,
@@ -158,12 +259,17 @@ export class Game {
             playerId: userId,
             from: move.from,
             to: move.to,
+            remainingSeconds: paused?.remainingSeconds ?? null,
+            elapsedSeconds: paused?.elapsedSeconds ?? null,
             moveNo: this.moveCount - 1
         }))
 
         if (this.board.isGameOver()) {
 
             if (this.board.isCheckmate()) {
+                this.gameEnded = true;
+                this.clock.stop();
+
                 socket.send(JSON.stringify({
                     type: GAME_OVER,
                     payload: {
@@ -178,6 +284,12 @@ export class Game {
                         message: "loss",
                         reason: "checkmate"
                     }
+                }));
+
+                await redis.lPush("moves", JSON.stringify({
+                    type: "game_over",
+                    gameId: this.GAME_ID,
+                    reason: "checkmate"
                 }));
 
                 return;
@@ -199,6 +311,9 @@ export class Game {
                 }
 
                 if (reason) {
+                    this.gameEnded = true;
+                    this.clock.stop();
+
                     const drawPayload = JSON.stringify({
                         type: GAME_OVER,
                         payload: {
@@ -209,6 +324,12 @@ export class Game {
 
                     socket.send(drawPayload);
                     opponent.Websocket?.send(drawPayload);
+
+                    await redis.lPush("moves", JSON.stringify({
+                        type: "game_over",
+                        gameId: this.GAME_ID,
+                        reason: reason
+                    }));
                 }
             }
         }

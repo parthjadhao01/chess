@@ -52,7 +52,8 @@ export class GameManager {
 
                     });
 
-                    const game = new Game(this.pendingUser.socket, socket, GAME.id, this.pendingUser.userId, userId);
+                    const game = new Game(this.pendingUser.socket, socket, GAME.id, this.pendingUser.userId, userId, this.redis);
+                    game.startClockForCurrentTurn();
                     this.games.push(game);
 
                     this.pendingUser = null;
@@ -146,12 +147,30 @@ export class GameManager {
             // fetch moves, reconstruct board
             const moves = await db.move.findMany({ where: { gameId: gameId }, orderBy: { moveNo: "asc" } });
 
+            // Best-effort reconstruction of remaining clock time from move write
+            // timestamps (the DB doesn't persist per-move duration directly, so
+            // this includes any redis-queue/worker processing lag as "thinking
+            // time" and will therefore run slightly fast — it's an approximation,
+            // not a source of truth for anything but resuming a dropped connection).
+            const TEN_MINUTES = 10 * 60;
+            let whiteRemaining = TEN_MINUTES;
+            let blackRemaining = TEN_MINUTES;
+            let prevTimestamp = gameRecord.createdAt.getTime();
+            for (const m of moves as { moveNo: number; createdAt: Date }[]) {
+                const elapsedSeconds = (m.createdAt.getTime() - prevTimestamp) / 1000;
+                if (m.moveNo % 2 === 0) whiteRemaining = Math.max(whiteRemaining - elapsedSeconds, 0);
+                else blackRemaining = Math.max(blackRemaining - elapsedSeconds, 0);
+                prevTimestamp = m.createdAt.getTime();
+            }
+
             const board = new Game(
                 socket, // reconnecting player
                 null as any, // second player socket may reconnect later
                 gameId,
                 gameRecord.player1Id,
-                gameRecord.player2Id
+                gameRecord.player2Id,
+                this.redis,
+                { white: whiteRemaining, black: blackRemaining }
             );
 
             moves.forEach((m : {
@@ -160,6 +179,7 @@ export class GameManager {
                 playerId : string
             }) => board.applyMove({ from: m.from, to: m.to }));
 
+            board.startClockForCurrentTurn();
             this.games.push(board);
 
             board.reconnect(socket, userId); // send board & moves to reconnecting user
