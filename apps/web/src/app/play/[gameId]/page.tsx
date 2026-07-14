@@ -3,6 +3,7 @@
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
 import MovesTable from "@/app/play/[gameId]/movesTable";
 import { AiPanel } from "@/app/play/[gameId]/ai-panel";
+import { PlayerClock } from "@/app/play/[gameId]/clock";
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {useSocket} from "@/app/socket-provider";
@@ -29,6 +30,7 @@ export default function GamePage() {
         moves,
         gameOver,
         color,
+        clock,
         isAiThinking,
         aiMoveExplanation,
         gameAnalysis,
@@ -71,7 +73,7 @@ export default function GamePage() {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data)
                 if (message.type === "reconnect") {
-                    reconnect(message.payload.fen, message.payload.moves ,message.payload.color)
+                    reconnect(message.payload.fen, message.payload.moves, message.payload.color, message.payload.clock)
                 }
             }
         }
@@ -157,9 +159,17 @@ export default function GamePage() {
                                     </p>
                                 </div>
                             </div>
-                            {isAiGame && isAiThinking && (
-                                <span className="text-xs text-violet-400 animate-pulse">Thinking...</span>
-                            )}
+                            <div className="flex items-center gap-3">
+                                {isAiGame && isAiThinking && (
+                                    <span className="text-xs text-violet-400 animate-pulse">Thinking...</span>
+                                )}
+                                {clock && (
+                                    <PlayerClock
+                                        seconds={color === "white" ? clock.black : clock.white}
+                                        isRunning={clock.turn !== color && !gameOver}
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {/* Chess Board */}
@@ -180,6 +190,12 @@ export default function GamePage() {
                                     </p>
                                 </div>
                             </div>
+                            {clock && (
+                                <PlayerClock
+                                    seconds={color === "white" ? clock.white : clock.black}
+                                    isRunning={clock.turn === color && !gameOver}
+                                />
+                            )}
                         </div>
                     </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Square } from "chess.js";
-import { GAME_OVER, MOVES } from "../messages";
+import { CLOCK, GAME_OVER, MOVES } from "../messages";
 import { useChessStore } from "@/app/store/chess-game-state";
 import { useSocket } from "@/app/socket-provider";
 import Image from "next/image";
@@ -64,6 +64,7 @@ function ChessBoard() {
     const playerColor = useChessStore((state) => state.color);
     const endGame = useChessStore((state) => state.endGame);
     const applyMove = useChessStore((state) => state.applyMove);
+    const setClock = useChessStore((state) => state.setClock);
     const [from, setFrom] = useState<Square | null>(null);
 
     useEffect(() => {
@@ -77,6 +78,11 @@ function ChessBoard() {
                         const move = message.payload;
                         applyMove({ from: move.from, to: move.to });
                         playSound('move');
+                        break;
+                    }
+                    case CLOCK: {
+                        const { white, black, turn } = message.payload;
+                        setClock({ white, black, turn });
                         break;
                     }
                     case GAME_OVER: {
@@ -101,7 +107,7 @@ function ChessBoard() {
                 }
             }
         }
-    }, [socket, status, playerColor, applyMove, endGame])
+    }, [socket, status, playerColor, applyMove, endGame, setClock])
 
     if (!socket) return <div>Connecting...</div>
     if (!board) return <div>Something went wrong, please try again.</div>
