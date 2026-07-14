@@ -11,6 +11,7 @@ import {useParams, useSearchParams} from "next/navigation";
 import {useChessStore} from "@/app/store/chess-game-state";
 import { AGENT_URL, BACKEND_URL } from "@/config";
 import { useSession } from "next-auth/react";
+import { SidebarComponent } from "./components/sideBar";
 
 export default function GamePage() {
     const {gameId} = useParams<{gameId : string}>()
@@ -200,9 +201,10 @@ export default function GamePage() {
                     </div>
 
                     {/* Right: Sidebar */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 min-w-0">
                         <div className="sticky top-4 space-y-3">
-                            <MovesTable />
+                            {/* <MovesTable /> */}
+                            <SidebarComponent/>
 
                             {/* AI Panel — only in AI games */}
                             {isAiGame && (

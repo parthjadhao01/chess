@@ -1,6 +1,6 @@
 import {create} from "zustand"
 import {Color, PieceSymbol, Square ,Chess} from "chess.js";
-type Move = {from : string , to : string}
+type Move = {from : string , to : string, san? : string, elapsedSeconds? : number}
 
 export const DEFAULT_CLOCK_SECONDS = 10 * 60;
 
@@ -93,10 +93,10 @@ export const useChessStore = create<ChessState>((set,get)=>({
 
     applyMove : (move) => {
         const chess = get().chess
-        chess.move(move)
+        const result = chess.move(move)
         const board = get().chess.board()
         set((state)=>({
-            moves : [...state.moves,move],
+            moves : [...state.moves, { from : move.from, to : move.to, san : result.san }],
             board : board,
             chess : chess
         }))
@@ -104,10 +104,22 @@ export const useChessStore = create<ChessState>((set,get)=>({
 
     reconnect : (fen: string, moves, color, clock) => {
         const chess = new Chess();
+        // Reconstruct SAN for each historical move by replaying them — the
+        // reconnect payload only carries {from,to}, no notation.
+        const replay = new Chess();
+        const movesWithSan = moves.map((move) => {
+            let san : string | undefined;
+            try {
+                san = replay.move({ from : move.from, to : move.to }).san
+            } catch {
+                san = undefined
+            }
+            return { ...move, san }
+        })
         chess.load(fen)
         set({
             chess,
-            moves,
+            moves : movesWithSan,
             board : chess.board(),
             color,
             gameOver : false,
@@ -115,7 +127,30 @@ export const useChessStore = create<ChessState>((set,get)=>({
         })
     },
 
-    setClock : (clock) => set({ clock }),
+    // Clock updates are server-authoritative and only ever carry cumulative
+    // remaining seconds — there's no explicit "time taken" field. We recover
+    // it by diffing the mover's remaining time against the previous snapshot:
+    // broadcasts only fire at game start (no-op, no prior move to attribute
+    // to) and right after a move is processed, so the delta for whichever
+    // color just finished its turn is exactly that move's thinking time.
+    setClock : (clock) => set((state) => {
+        const prev = state.clock
+        if (!prev || state.moves.length === 0) return { clock }
+
+        const moverColor : "white" | "black" = clock.turn === "white" ? "black" : "white"
+        const elapsedSeconds = prev[moverColor] - clock[moverColor]
+        if (!(elapsedSeconds > 0) || !Number.isFinite(elapsedSeconds)) return { clock }
+
+        for (let i = state.moves.length - 1; i >= 0; i--) {
+            const color = i % 2 === 0 ? "white" : "black"
+            if (color !== moverColor) continue
+            if (state.moves[i].elapsedSeconds != null) break
+            const moves = [...state.moves]
+            moves[i] = { ...moves[i], elapsedSeconds }
+            return { clock, moves }
+        }
+        return { clock }
+    }),
 
     reset : () => {
         set({
