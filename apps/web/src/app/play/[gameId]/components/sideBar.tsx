@@ -12,31 +12,21 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import MovesTable from "../movesTable"
+import ChatTabs from "./sideBarTabs/chatTabs"
 
 export function SidebarComponent() {
   return (
-    <Tabs defaultValue="overview" className="w-full">
+    <Tabs defaultValue="moves" className="w-full">
       <TabsList className="w-full">
-        <TabsTrigger value="overview">Moves</TabsTrigger>
-        <TabsTrigger value="analytics">Chat</TabsTrigger>
+        <TabsTrigger value="moves">Moves</TabsTrigger>
+        <TabsTrigger value="chat">Chat</TabsTrigger>
         <TabsTrigger value="reports">Info</TabsTrigger>
       </TabsList>
-      <TabsContent value="overview">
+      <TabsContent value="moves">
         <MovesTable/>
       </TabsContent>
-      <TabsContent value="analytics">
-        <Card>
-          <CardHeader>
-            <CardTitle>Analytics</CardTitle>
-            <CardDescription>
-              Track performance and user engagement metrics. Monitor trends and
-              identify growth opportunities.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            Page views are up 25% compared to last month.
-          </CardContent>
-        </Card>
+      <TabsContent value="chat" forceMount className="data-[state=inactive]:hidden">
+        <ChatTabs/>
       </TabsContent>
       <TabsContent value="reports">
         <Card>

@@ -1,28 +1,29 @@
-import {WebSocket} from "ws";
-import {Chess} from "chess.js";
-import {CLOCK, GAME_OVER, INIT_GAME, MOVES} from "./messages";
-import {Clock, PlayerColor} from "./timer";
+import { WebSocket } from "ws";
+import { Chess } from "chess.js";
+import { CLOCK, GAME_OVER, INIT_GAME, MOVES, MESSAGE_REQUEST, MESSAGE_REQUEST_RESPONSE,MESSAGE ,MESSAGE_DECLINED} from "./messages";
+import { Clock, PlayerColor } from "./timer";
 
 interface player {
-    playerId : string;
-    Websocket : WebSocket;
+    playerId: string;
+    Websocket: WebSocket;
+    chatPermission: boolean;
 }
 
 export class Game {
 
-    public player1 : player;
-    public player2 : player;
-    public GAME_ID : string;
-    private board : Chess;
-    private moves : {
-        from : string,
-        to : string,
-        moveCount : number
+    public player1: player;
+    public player2: player;
+    public GAME_ID: string;
+    private board: Chess;
+    private moves: {
+        from: string,
+        to: string,
+        moveCount: number
     }[];
-    private startTime : Date;
+    private startTime: Date;
     private moveCount = 0;
-    private clock : Clock;
-    private redis : any;
+    private clock: Clock;
+    private redis: any;
     private gameEnded = false;
 
     TEN_MINUTES = 10 * 60; // 10 minutes in seconds
@@ -31,21 +32,23 @@ export class Game {
     // handleDbReconnect) resume with an approximation of the time already
     // consumed, instead of resetting both clocks to a fresh 10 minutes.
     constructor(
-        player1 : WebSocket,
-        player2 : WebSocket,
-        GAME_ID : string,
-        player1Id : string,
-        player2Id : string,
-        redis : any,
-        initialTimes? : { white : number, black : number },
+        player1: WebSocket,
+        player2: WebSocket,
+        GAME_ID: string,
+        player1Id: string,
+        player2Id: string,
+        redis: any,
+        initialTimes?: { white: number, black: number },
     ) {
         this.player1 = {
-            playerId : player1Id,
-            Websocket : player1,
+            playerId: player1Id,
+            Websocket: player1,
+            chatPermission: false
         }
         this.player2 = {
-            playerId : player2Id,
-            Websocket : player2,
+            playerId: player2Id,
+            Websocket: player2,
+            chatPermission: false
         }
         this.board = new Chess();
         this.moves = [];
@@ -53,21 +56,21 @@ export class Game {
         this.GAME_ID = GAME_ID;
         this.redis = redis;
 
-        if (this.player1 && this.player1.Websocket){
+        if (this.player1 && this.player1.Websocket) {
             this.player1.Websocket.send(JSON.stringify({
-                type : INIT_GAME,
-                payload : {
-                    color : "white",
-                    gameId : GAME_ID
+                type: INIT_GAME,
+                payload: {
+                    color: "white",
+                    gameId: GAME_ID
                 }
             }))
         }
-        if (this.player2 && this.player2.Websocket){
+        if (this.player2 && this.player2.Websocket) {
             this.player2.Websocket.send(JSON.stringify({
-                type : INIT_GAME,
-                payload : {
-                    color : "black",
-                    gameId : GAME_ID
+                type: INIT_GAME,
+                payload: {
+                    color: "black",
+                    gameId: GAME_ID
                 }
             }))
         }
@@ -86,7 +89,7 @@ export class Game {
     // moveCount. Call once after construction (fresh game) or once after
     // replaying past moves (reconnect-from-DB).
     public startClockForCurrentTurn() {
-        const toMove : PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
+        const toMove: PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
         this.clock.start(toMove);
         this.broadcastClock(toMove);
     }
@@ -94,17 +97,17 @@ export class Game {
     // Pushes the authoritative remaining time to both players. Called on setup
     // and after every processed move so the client never has to compute time on
     // its own — it just renders whatever the server last sent.
-    private broadcastClock(turn : PlayerColor) {
+    private broadcastClock(turn: PlayerColor) {
         const times = this.clock.snapshot();
         const payload = JSON.stringify({
-            type : CLOCK,
-            payload : { white : times.white, black : times.black, turn }
+            type: CLOCK,
+            payload: { white: times.white, black: times.black, turn }
         });
         this.player1.Websocket?.send(payload);
         this.player2.Websocket?.send(payload);
     }
 
-    private async handleFlag(color : PlayerColor) {
+    private async handleFlag(color: PlayerColor) {
         if (this.gameEnded) return;
         this.gameEnded = true;
         this.clock.stop();
@@ -113,24 +116,24 @@ export class Game {
         const wonPlayer = color === "white" ? this.player2 : this.player1;
 
         lostPlayer.Websocket?.send(JSON.stringify({
-            type : GAME_OVER,
-            payload : { message : "loss", reason : "timeout" }
+            type: GAME_OVER,
+            payload: { message: "loss", reason: "timeout" }
         }));
         wonPlayer.Websocket?.send(JSON.stringify({
-            type : GAME_OVER,
-            payload : { message : "win", reason : "timeout" }
+            type: GAME_OVER,
+            payload: { message: "win", reason: "timeout" }
         }));
 
         if (this.redis) {
             await this.redis.lPush("moves", JSON.stringify({
-                type : "game_over",
-                gameId : this.GAME_ID,
-                reason : "timeout"
+                type: "game_over",
+                gameId: this.GAME_ID,
+                reason: "timeout"
             }));
         }
     }
 
-    public async gameResign(resignPlayerWebsocket : WebSocket ,redis : any){
+    public async gameResign(resignPlayerWebsocket: WebSocket, redis: any) {
         if (this.gameEnded) return;
         this.gameEnded = true;
         this.clock.stop();
@@ -138,41 +141,41 @@ export class Game {
         const resignPlayer = resignPlayerWebsocket;
         const opponentPlayer = resignPlayerWebsocket === this.player1.Websocket ? this.player2 : this.player1;
         resignPlayer.send(JSON.stringify({
-            type : GAME_OVER,
-            payload : {
-                message : "loss",
-                reason : "resignation"
+            type: GAME_OVER,
+            payload: {
+                message: "loss",
+                reason: "resignation"
             }
         }))
         opponentPlayer.Websocket?.send(JSON.stringify({
-            type : GAME_OVER,
-            payload : {
-                message : "win",
-                reason : "resignation"
+            type: GAME_OVER,
+            payload: {
+                message: "win",
+                reason: "resignation"
             }
         }))
 
-        await redis.lPush("moves",JSON.stringify({
-            type : "game_over",
+        await redis.lPush("moves", JSON.stringify({
+            type: "game_over",
             gameId: this.GAME_ID,
             reason: "resignation"
         }))
 
     }
 
-    public async reconnect(socket : WebSocket,userId : string){
-        if (this.player1.playerId === userId){
+    public async reconnect(socket: WebSocket, userId: string) {
+        if (this.player1.playerId === userId) {
             this.player1.Websocket = socket as WebSocket;
-        }else{
+        } else {
             this.player2.Websocket = socket as WebSocket;
         }
         socket.send(JSON.stringify({
-            type : "reconnect",
-            payload : {
-                fen : this.board.fen(),
-                moves : this.moves,
-                color : this.player1.playerId === userId ? "white" : "black",
-                clock : this.clock.snapshot()
+            type: "reconnect",
+            payload: {
+                fen: this.board.fen(),
+                moves: this.moves,
+                color: this.player1.playerId === userId ? "white" : "black",
+                clock: this.clock.snapshot()
             }
         }))
     }
@@ -188,12 +191,12 @@ export class Game {
         this.moveCount++;
     }
 
-    public async makeMoveById(move : {from : string, to : string}, redis : any, playerId?: string){
+    public async makeMoveById(move: { from: string, to: string }, redis: any, playerId?: string) {
         if (this.gameEnded) return;
 
         const effectivePlayerId = playerId ?? this.player2.playerId;
-        const moverColor : PlayerColor = effectivePlayerId === this.player1.playerId ? "white" : "black";
-        const nextColor : PlayerColor = moverColor === "white" ? "black" : "white";
+        const moverColor: PlayerColor = effectivePlayerId === this.player1.playerId ? "white" : "black";
+        const nextColor: PlayerColor = moverColor === "white" ? "black" : "white";
 
         try {
             this.applyMove(move);
@@ -208,10 +211,10 @@ export class Game {
         this.clock.start(nextColor);
         this.broadcastClock(nextColor);
 
-        await redis.lPush("moves",JSON.stringify({
-            type : "move",
+        await redis.lPush("moves", JSON.stringify({
+            type: "move",
             gameId: this.GAME_ID,
-            fen : this.board.fen(),
+            fen: this.board.fen(),
             playerId: effectivePlayerId,
             from: move.from,
             to: move.to,
@@ -221,18 +224,103 @@ export class Game {
         }))
     }
 
-    public async makeMove(socket: WebSocket, move : {
-        from : string,
-        to : string
-    }, userId: string , redis : any) {
+    public async messageRequest(socket: WebSocket) {
+        if (this.gameEnded) return;
+        if (this.player1.chatPermission && this.player2.chatPermission) return;
+
+        if (this.player1.Websocket === socket) {
+            // GUARD: don't re-notify the opponent if this player's request is already
+            // pending/accepted — stops a double-click from firing a duplicate
+            // MESSAGE_REQUEST toast on the other side.
+            if (this.player1.chatPermission) return;
+            this.player1.chatPermission = true;
+            this.player2.Websocket.send(JSON.stringify({
+                type: MESSAGE_REQUEST,
+            }))
+        }
+        if (this.player2.Websocket === socket) {
+            if (this.player2.chatPermission) return;
+            this.player2.chatPermission = true;
+            this.player1.Websocket.send(JSON.stringify({
+                type: MESSAGE_REQUEST
+            }))
+        }
+    }
+
+    public async messageRequestResponse(socket: WebSocket, response: string) {
+        if (this.gameEnded) return;
+        if (this.player1.chatPermission && this.player2.chatPermission) return;
+
+        // FIX: this used to set the responder's chatPermission to true unconditionally,
+        // ignoring `response` — a "rejected" reply still left the server thinking chat
+        // was mutually accepted (since the requester's permission was already true),
+        // so a raw MESSAGE frame would've been relayed regardless of the decline.
+        // Branch on the actual value, and reset both flags on reject.
+        const accepted = response === "accepted";
+        if (this.player1.Websocket === socket) {
+            this.player1.chatPermission = accepted;
+        } else {
+            this.player2.chatPermission = accepted;
+        }
+        if (!accepted) {
+            this.player1.chatPermission = false;
+            this.player2.chatPermission = false;
+        }
+
+        const responsePayload = JSON.stringify({
+            type: MESSAGE_REQUEST_RESPONSE,
+            payload: { response: response }
+        });
+        this.player1.Websocket === socket
+            ? this.player2.Websocket.send(responsePayload)
+            : this.player1.Websocket.send(responsePayload);
+    }
+
+    public async message(socket : WebSocket, message : string){
+        if(this.gameEnded) return;
+        if(this.player1.chatPermission && this.player2.chatPermission){
+            this.player1.Websocket === socket ? this.player2.Websocket.send(JSON.stringify({
+                type : MESSAGE,
+                payload : {
+                    message : message
+                }
+            })) : this.player1.Websocket.send(JSON.stringify({
+                type : MESSAGE,
+                payload : {
+                    message : message
+                }
+            }))
+        }else{
+            this.player1.Websocket === socket ? this.player1.Websocket.send(JSON.stringify({
+                type : MESSAGE_DECLINED,
+                payload : {
+                    reason : "send chat-request to send message"
+                }
+            })) : this.player2.Websocket.send(JSON.stringify({
+                type : MESSAGE_DECLINED,
+                payload : {
+                    reason : "send chat-request to send message"
+                }
+            }))
+        }
+    }
+    // Chat messages are intentionally not persisted (no redis/DB write) — ephemeral
+    // by design, doesn't need to survive reconnect. messageRequestResponse() still has
+    // no guard against a response arriving with no pending request; low-risk since the
+    // frontend only ever sends one after an actual MESSAGE_REQUEST, but worth a guard
+    // if this ever gets a non-UI client.
+    public async makeMove(socket: WebSocket, move: {
+        from: string,
+        to: string
+    }, userId: string, redis: any) {
         if (this.gameEnded) return;
         if (this.moveCount % 2 === 0 && socket !== this.player1.Websocket) return;
         if (this.moveCount % 2 === 1 && socket !== this.player2.Websocket) return;
 
         const opponent =
             this.moveCount % 2 === 0 ? this.player2 : this.player1;
-        const moverColor : PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
-        const nextColor : PlayerColor = moverColor === "white" ? "black" : "white";
+        const moverColor: PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
+        const nextColor: PlayerColor = moverColor === "white" ? "black" : "white";
 
         try {
             this.applyMove(move);
@@ -252,10 +340,10 @@ export class Game {
         this.clock.start(nextColor);
         this.broadcastClock(nextColor);
 
-        await redis.lPush("moves",JSON.stringify({
-            type : "move",
+        await redis.lPush("moves", JSON.stringify({
+            type: "move",
             gameId: this.GAME_ID,
-            fen : this.board.fen(),
+            fen: this.board.fen(),
             playerId: userId,
             from: move.from,
             to: move.to,
@@ -294,8 +382,8 @@ export class Game {
 
                 return;
             }
-            if (this.board.isDraw()){
-                let reason : null | string = null;
+            if (this.board.isDraw()) {
+                let reason: null | string = null;
 
                 if (this.board.isStalemate()) {
                     reason = "stalemate";

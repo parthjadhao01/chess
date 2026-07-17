@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { INIT_GAME, MOVES } from "./messages";
+import { INIT_GAME, MOVES,MESSAGE_REQUEST, MESSAGE_REQUEST_RESPONSE, MESSAGE } from "./messages";
 import { Game } from "./game";
 import { db } from "./db";
 import {createClient} from "redis";
@@ -69,6 +69,30 @@ export class GameManager {
                 const game = this.games.find((g) => g.player1.Websocket === socket || g.player2.Websocket === socket);
                 if (game) {
                     game.makeMove(socket, message.payload.move, userId ,this.redis);
+                }
+            }
+
+            // ---------- CHAT REQUEST ----------
+            if(message.type === MESSAGE_REQUEST){
+                const game = this.games.find((g) => g.player1.Websocket === socket || g.player2.Websocket === socket);
+                if(game){
+                    game.messageRequest(socket);
+                }
+            }
+
+            // ---------- CHAT REQUEST RESPONSE ----------
+            if(message.type === MESSAGE_REQUEST_RESPONSE){
+                const game = this.games.find((g)=> g.player1.Websocket === socket || g.player2.Websocket === socket);
+                if(game){
+                    game.messageRequestResponse(socket,message.payload.response);
+                }
+            }
+
+            // ---------- CHAT MESSAGE ----------
+            if(message.type === MESSAGE){
+                const game = this.games.find((g)=> g.player1.Websocket === socket || g.player2.Websocket === socket);
+                if(game){
+                    game.message(socket,message.payload.message);
                 }
             }
 
