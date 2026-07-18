@@ -70,7 +70,7 @@ function ChessBoard() {
     useEffect(() => {
         if (status !== "connected") return;
 
-        socket.onmessage = (event) => {
+        const handler = (event: MessageEvent) => {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data);
                 switch (message.type) {
@@ -107,6 +107,9 @@ function ChessBoard() {
                 }
             }
         }
+
+        socket.addEventListener("message", handler);
+        return () => socket.removeEventListener("message", handler);
     }, [socket, status, playerColor, applyMove, endGame, setClock])
 
     if (!socket) return <div>Connecting...</div>

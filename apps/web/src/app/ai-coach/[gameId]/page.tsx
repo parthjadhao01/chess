@@ -1,7 +1,7 @@
 'use client';
 
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
-import MovesTable from "@/app/play/[gameId]/movesTable";
+import MoveTab from "@/app/play/[gameId]/moveTab";
 import { AiPanel } from "@/app/play/[gameId]/ai-panel";
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -140,7 +140,7 @@ export default function AiCoachGamePage() {
                     {/* Right: Sidebar */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-4 space-y-3">
-                            <MovesTable />
+                            <MoveTab />
 
                             <AiPanel
                                 isThinking={isAiThinking}
