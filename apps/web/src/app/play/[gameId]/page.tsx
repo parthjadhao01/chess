@@ -1,7 +1,7 @@
 // /play/[gameId]
 "use client"
 import ChessBoard from "@/app/play/[gameId]/chessBoard";
-import MovesTable from "@/app/play/[gameId]/movesTable";
+import MoveTab from "@/app/play/[gameId]/moveTab";
 import { AiPanel } from "@/app/play/[gameId]/ai-panel";
 import { PlayerClock } from "@/app/play/[gameId]/clock";
 import { useState, useEffect, useRef } from 'react';
@@ -203,7 +203,7 @@ export default function GamePage() {
                     {/* Right: Sidebar */}
                     <div className="lg:col-span-1 min-w-0">
                         <div className="sticky top-4 space-y-3">
-                            {/* <MovesTable /> */}
+                            {/* <MoveTab /> */}
                             <SidebarComponent />
 
                             {/* AI Panel — only in AI games */}

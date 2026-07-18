@@ -21,7 +21,7 @@ function MoveTime({color, seconds} : {color : "white" | "black", seconds? : numb
     )
 }
 
-function MovesTable() {
+function MoveTab() {
     const moves = useChessStore(state => state.moves);
     const lastMoveIndex = moves.length - 1;
 
@@ -79,4 +79,4 @@ function MovesTable() {
     )
 }
 
-export default MovesTable
+export default MoveTab
