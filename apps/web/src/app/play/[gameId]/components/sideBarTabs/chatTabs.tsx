@@ -29,6 +29,7 @@ import {
     BubbleContent,
 } from "@/components/ui/bubble"
 import { toast } from 'sonner';
+import { useChessStore } from '@/app/store/chess-game-state';
 
 type messageType = {
     message: string,
@@ -54,10 +55,16 @@ function ChatTabs() {
     
     const { gameId } = useParams<{ gameId: string }>();
     const { socket, status } = useSocket();
-
+    const { messageEstablish} = useChessStore()
     const [requestStatus, setRequestStatus] = useState<"send" | "pending" | "rejected" | "accepted" | "not-sent" | "incomming">("not-sent")
     const [message, setMessage] = useState<messageType[] | []>([]);
     const [draft, setDraft] = useState("");
+
+    useEffect(()=>{
+        if(messageEstablish){
+            setRequestStatus("accepted")
+        }
+    },[messageEstablish])
 
     useEffect(() => {
         if (status !== "connected") return;

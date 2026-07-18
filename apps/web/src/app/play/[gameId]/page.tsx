@@ -6,19 +6,19 @@ import { AiPanel } from "@/app/play/[gameId]/ai-panel";
 import { PlayerClock } from "@/app/play/[gameId]/clock";
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import {useSocket} from "@/app/socket-provider";
-import {useParams, useSearchParams} from "next/navigation";
-import {useChessStore} from "@/app/store/chess-game-state";
+import { useSocket } from "@/app/socket-provider";
+import { useParams, useSearchParams } from "next/navigation";
+import { useChessStore } from "@/app/store/chess-game-state";
 import { AGENT_URL, BACKEND_URL } from "@/config";
 import { useSession } from "next-auth/react";
 import { SidebarComponent } from "./components/sideBar";
 
 export default function GamePage() {
-    const {gameId} = useParams<{gameId : string}>()
+    const { gameId } = useParams<{ gameId: string }>()
     const searchParams = useSearchParams();
     const isAiParam = searchParams.get("ai") === "1";
 
-    const {socket,status} = useSocket();
+    const { socket, status } = useSocket();
     const { data: session } = useSession();
     const [showResignConfirm, setShowResignConfirm] = useState(false);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -58,7 +58,7 @@ export default function GamePage() {
                 const opponent = game.player1Id === session.user.id ? game.player2 : game.player1;
                 if (opponent?.username) setOpponentName(opponent.username);
             })
-            .catch(() => {});
+            .catch(() => { });
     }, [gameId, session?.user?.id, isAiGame]);
 
     // Reconnect WebSocket when connected
@@ -74,7 +74,7 @@ export default function GamePage() {
             if (typeof event.data === "string") {
                 const message = JSON.parse(event.data)
                 if (message.type === "reconnect") {
-                    reconnect(message.payload.fen, message.payload.moves, message.payload.color, message.payload.clock)
+                    reconnect(message.payload.fen, message.payload.moves, message.payload.color, message.payload.clock, message.payload.messageEstablish)
                 }
             }
         }
@@ -136,8 +136,8 @@ export default function GamePage() {
 
     const confirmResign = () => {
         socket.send(JSON.stringify({
-            type : "resign",
-            payload : { gameId }
+            type: "resign",
+            payload: { gameId }
         }))
     };
 
@@ -204,7 +204,7 @@ export default function GamePage() {
                     <div className="lg:col-span-1 min-w-0">
                         <div className="sticky top-4 space-y-3">
                             {/* <MovesTable /> */}
-                            <SidebarComponent/>
+                            <SidebarComponent />
 
                             {/* AI Panel — only in AI games */}
                             {isAiGame && (

@@ -19,11 +19,12 @@ type ChessState = {
     } | null )[][] | null,
     gameId : string | null,
     moves : Move[],
+    messageEstablish : boolean,
     startNewGame : (gameId : string, color : string) => void,
     endGame : (gameOver : boolean) => void,
     applyMove : (move : Move) => void,
     reset : () => void
-    reconnect : (fen : string,moves : Move[],color : string, clock? : ClockState) => void
+    reconnect : (fen : string,moves : Move[],color : string, clock? : ClockState, messageEstablish? : boolean) => void
     color : string,
     gameOver : boolean,
     // Clock — server-authoritative, only ever set from a "clock"/"reconnect" WS message
@@ -43,6 +44,7 @@ type ChessState = {
 export const useChessStore = create<ChessState>((set,get)=>({
     chess : new Chess(),
     gameId : null,
+    messageEstablish : false,
     board : null,
     moves : [],
     color : "white",
@@ -66,6 +68,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
             isAiGame : false,
             aiMoveExplanation : null,
             gameAnalysis : null,
+            messageEstablish : false,
             clock : { white: DEFAULT_CLOCK_SECONDS, black: DEFAULT_CLOCK_SECONDS, turn: "white" },
         })
     },
@@ -102,7 +105,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
         }))
     },
 
-    reconnect : (fen: string, moves, color, clock) => {
+    reconnect : (fen: string, moves, color, clock, messageEstablish) => {
         const chess = new Chess();
         // Reconstruct SAN for each historical move by replaying them — the
         // reconnect payload only carries {from,to}, no notation.
@@ -124,6 +127,7 @@ export const useChessStore = create<ChessState>((set,get)=>({
             color,
             gameOver : false,
             clock : clock ?? null,
+            messageEstablish : messageEstablish ?? false,
         })
     },
 

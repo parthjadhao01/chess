@@ -169,13 +169,15 @@ export class Game {
         } else {
             this.player2.Websocket = socket as WebSocket;
         }
+        const turn: PlayerColor = this.moveCount % 2 === 0 ? "white" : "black";
         socket.send(JSON.stringify({
             type: "reconnect",
             payload: {
                 fen: this.board.fen(),
                 moves: this.moves,
                 color: this.player1.playerId === userId ? "white" : "black",
-                clock: this.clock.snapshot()
+                clock: { ...this.clock.snapshot(), turn },
+                messageEstablish : this.player1.chatPermission && this.player2.chatPermission
             }
         }))
     }
