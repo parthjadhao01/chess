@@ -12,6 +12,7 @@ import { useChessStore } from "@/app/store/chess-game-state";
 import { AGENT_URL, BACKEND_URL } from "@/config";
 import { useSession } from "next-auth/react";
 import { SidebarComponent } from "./components/sideBar";
+import { UserMenu } from "@/components/user-menu";
 
 export default function GamePage() {
     const { gameId } = useParams<{ gameId: string }>()
@@ -142,8 +143,12 @@ export default function GamePage() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+            <div className="fixed top-4 right-4 z-50">
+                <UserMenu />
+            </div>
+
+            <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {/* Left: Chess Board */}
                     <div className="lg:col-span-2">
