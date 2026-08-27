@@ -8,7 +8,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         <SessionProvider>
             <NextThemesProvider
                 attribute="class"
-                defaultTheme="dark"
+                forcedTheme="dark"
                 enableSystem={false}
                 disableTransitionOnChange
             >

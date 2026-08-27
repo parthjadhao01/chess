@@ -37,11 +37,11 @@ exports.$Enums = {}
 
 /**
  * Prisma Client JS version: 6.19.2
- * Query Engine version: c2990dca591cba766e3b7ef5d9e8a84796e47ab7
+ * Query Engine version: acc0b9dd43eb689cbd20c9470515d719db10d0b0
  */
 Prisma.prismaVersion = {
   client: "6.19.2",
-  engine: "c2990dca591cba766e3b7ef5d9e8a84796e47ab7"
+  engine: "acc0b9dd43eb689cbd20c9470515d719db10d0b0"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -208,7 +208,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/parthjadhao/Projects/chess/packages/db/generated/client",
+      "value": "/Users/parthjadhao/Projects/production-project/chess/packages/db/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -230,7 +230,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/parthjadhao/Projects/chess/packages/db/prisma/schema.prisma",
+    "sourceFilePath": "/Users/parthjadhao/Projects/production-project/chess/packages/db/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -239,11 +239,12 @@ const config = {
   },
   "relativePath": "../../prisma",
   "clientVersion": "6.19.2",
-  "engineVersion": "c2990dca591cba766e3b7ef5d9e8a84796e47ab7",
+  "engineVersion": "acc0b9dd43eb689cbd20c9470515d719db10d0b0",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
